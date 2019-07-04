@@ -44,7 +44,7 @@ public class Game implements ActionListener, MouseListener {
 	public Game() {
 		initFrame();
 		initGame();
-		timer = new Timer(10, this);
+		timer = new Timer(GameData.UPDATE_SPEED_MS, this);
 		timer.start();
 	}
 
@@ -232,7 +232,6 @@ public class Game implements ActionListener, MouseListener {
 				processTileSelection(sRow, sCol);
 			}
 		}
-		renderer.repaint();
 	}
 
 	@Override

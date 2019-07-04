@@ -146,20 +146,4 @@ public abstract class Piece {
 				GameData.TILE_WIDTH - 20, GameData.TILE_HEIGHT - 20, null);
 	}
 
-//	public Object clone(int row, int column, Players player) {
-//		if (this instanceof Pawn) {
-//			return new Pawn(row, column, player);
-//		} else if (this instanceof Knight) {
-//			return new Knight(row, column, player);
-//		} else if (this instanceof Bishop) {
-//			spriteToUse = player == Players.PLAYER_1 ? GameData.bishopSprite[0] : GameData.bishopSprite[1];
-//		} else if (this instanceof Rook) {
-//			spriteToUse = player == Players.PLAYER_1 ? GameData.rookSprite[0] : GameData.rookSprite[1];
-//		} else if (this instanceof Queen) {
-//			spriteToUse = player == Players.PLAYER_1 ? GameData.queenSprite[0] : GameData.queenSprite[1];
-//		} else if (this instanceof King) {
-//			spriteToUse = player == Players.PLAYER_1 ? GameData.kingSprite[0] : GameData.kingSprite[1];
-//		}
-//	}
-
 }

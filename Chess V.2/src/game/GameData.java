@@ -16,6 +16,7 @@ public class GameData {
 	public static final int BOARD_WIDTH = 800;
 	public static final int BOARD_HEIGHT = FRAME_HEIGHT;
 	public static final int FRAME_WIDTH = BOARD_WIDTH + PLAYER_PANEL_WIDTH;
+	public static final int UPDATE_SPEED_MS = 50;
 
 	public static final int ROWS = 8;
 	public static final int COLUMNS = 8;
@@ -69,13 +70,6 @@ public class GameData {
 			kingSprite[1] = pieceSpriteSheet.getSubimage(24, 238, 188 - 24, 404 - 238);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	public class Util {
-		public ArrayList<Piece> deepClone(ArrayList<Piece> list){
-			
-			return null;
 		}
 	}
 
