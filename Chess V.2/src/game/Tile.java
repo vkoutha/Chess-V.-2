@@ -13,7 +13,7 @@ public class Tile {
 
 	private int row, column;
 	private Color color;
-	private boolean isValidMoveTile;
+	private boolean isValidMoveTile, isCheckedTile;
 
 	public Tile(int row, int column) {
 		this.row = row;
@@ -32,9 +32,13 @@ public class Tile {
 			}
 		}
 	}
-	
-	public void setValidMoveTile(boolean validMoveTile) {
+
+	public void setAsValidMoveTile(boolean validMoveTile) {
 		isValidMoveTile = validMoveTile;
+	}
+
+	public void setAsCheckedTile(boolean checkedTile) {
+		isCheckedTile = checkedTile;
 	}
 
 	public boolean containsAlly(Players player) {
@@ -64,19 +68,36 @@ public class Tile {
 	public void render(Graphics g) {
 		g.setColor(color);
 		g.fillRect(column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT, GameData.TILE_WIDTH, GameData.TILE_HEIGHT);
+		if (isCheckedTile) {
+			g.setColor(GameData.IN_CHECK_TILE_COLOR);
+			g.fillRect(column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT, GameData.TILE_WIDTH,
+					GameData.TILE_HEIGHT);
+			g.setColor(Color.WHITE);
+			g.drawRect(column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT, GameData.TILE_WIDTH - 1,
+					GameData.TILE_HEIGHT - 1);
+		}
 		if (isValidMoveTile) {
 			if (getPiece() == null) {
 				g.setColor(GameData.VALID_MOVE_TILE_COLOR);
-				g.fillOval(column * GameData.TILE_WIDTH + GameData.VALID_MOVE_CIRCLE_SHRINK_SIZE,
-						row * GameData.TILE_HEIGHT + GameData.VALID_MOVE_CIRCLE_SHRINK_SIZE,
-						GameData.TILE_WIDTH - (GameData.VALID_MOVE_CIRCLE_SHRINK_SIZE * 2),
-						GameData.TILE_WIDTH - (GameData.VALID_MOVE_CIRCLE_SHRINK_SIZE * 2));
+				g.fillOval(column * GameData.TILE_WIDTH + GameData.VALID_MOVE_CIRCLE_SHRINK_SCALE,
+						row * GameData.TILE_HEIGHT + GameData.VALID_MOVE_CIRCLE_SHRINK_SCALE,
+						GameData.TILE_WIDTH - (GameData.VALID_MOVE_CIRCLE_SHRINK_SCALE * 2),
+						GameData.TILE_WIDTH - (GameData.VALID_MOVE_CIRCLE_SHRINK_SCALE * 2));
 			} else {
 				Graphics2D g2 = (Graphics2D) g.create();
 				g2.setStroke(new BasicStroke(3));
 				g2.setColor(GameData.VALID_MOVE_TILE_COLOR);
 				g2.drawRect(column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT, GameData.TILE_WIDTH - 1,
 						GameData.TILE_HEIGHT - 1);
+			}
+		}
+	}
+
+	public static void resetCheckedTiles() {
+		Tile[][] tiles = Game.game.getTiles();
+		for (int row = 0; row < tiles.length; row++) {
+			for (int col = 0; col < tiles[row].length; col++) {
+				tiles[row][col].setAsCheckedTile(false);
 			}
 		}
 	}

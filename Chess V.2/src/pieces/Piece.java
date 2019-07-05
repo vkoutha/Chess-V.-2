@@ -11,6 +11,8 @@ import game.GameData.Players;
 public abstract class Piece {
 
 	protected int row, column;
+	private int deathSlot;
+	private boolean isDead;
 	protected Players player;
 	protected BufferedImage spriteToUse;
 
@@ -24,15 +26,10 @@ public abstract class Piece {
 	public abstract ArrayList<int[]> getAllMoves();
 
 	public ArrayList<int[]> getAvailableMoves() {
-		ArrayList<int[]> availableMoves = getAllMoves();
+		ArrayList<int[]> availableMoves = getAvailableMovesDisregardCheck();
+		availableMoves.addAll(getSpecialMoves());
 		for (int i = availableMoves.size() - 1; i >= 0; i--) {
-			if (inInvalidLocation(availableMoves.get(i)[0], availableMoves.get(i)[1])) {
-				availableMoves.remove(i);
-			} else if (Game.game.getTiles()[availableMoves.get(i)[0]][availableMoves.get(i)[1]].getPiece() != null
-					&& Game.game.getTiles()[availableMoves.get(i)[0]][availableMoves.get(i)[1]].getPiece()
-							.getPlayer() == player) {
-				availableMoves.remove(i);
-			} else if (willBeInCheck(availableMoves.get(i)[0], availableMoves.get(i)[1])) {
+			if (willBeInCheck(availableMoves.get(i)[0], availableMoves.get(i)[1])) {
 				availableMoves.remove(i);
 			}
 		}
@@ -53,6 +50,10 @@ public abstract class Piece {
 		return availableMoves;
 	}
 
+	public ArrayList<int[]> getSpecialMoves() {
+		return new ArrayList<int[]>();
+	}
+
 	private boolean willBeInCheck(int row, int column) {
 		Piece pieceToRemove = null;
 		int ogRow = this.row;
@@ -67,7 +68,6 @@ public abstract class Piece {
 		}
 		this.row = row;
 		this.column = column;
-	//	boolean isInCheck = false;
 		boolean isInCheck = King.getKing(player).isInCheck();
 		if (pieceToRemove != null) {
 			if (player == Players.PLAYER_1) {
@@ -130,20 +130,45 @@ public abstract class Piece {
 	}
 
 	public void move(int row, int column) {
-		if (Game.game.getTiles()[row][column].getPiece() != null) {
-			if (player == Players.PLAYER_1) {
-				Game.game.getPlayer2Pieces().remove(Game.game.getTiles()[row][column].getPiece());
-			} else {
-				Game.game.getPlayer1Pieces().remove(Game.game.getTiles()[row][column].getPiece());
-			}
+		Piece pieceAtTile = Game.game.getTiles()[row][column].getPiece();
+		if (pieceAtTile != null) {
+			System.out.println("PEICE KILLED");
+			pieceAtTile.kill();
 		}
 		this.row = row;
 		this.column = column;
 	}
 
+	public void kill() {
+		if (player == Players.PLAYER_1) {
+			Game.game.getPlayer1Pieces().remove(this);
+			Game.game.getDeadPlayer1Pieces().add(this);
+			deathSlot = Game.game.getDeadPlayer1Pieces().size() - 1;
+		} else {
+			Game.game.getPlayer2Pieces().remove(this);
+			Game.game.getDeadPlayer2Pieces().add(this);
+			deathSlot = Game.game.getDeadPlayer2Pieces().size() - 1;
+		}
+		isDead = true;
+	}
+
 	public void render(Graphics g) {
-		g.drawImage(spriteToUse, column * GameData.TILE_WIDTH + 10, row * GameData.TILE_WIDTH + 10,
-				GameData.TILE_WIDTH - 20, GameData.TILE_HEIGHT - 20, null);
+		if (!isDead) {
+			g.drawImage(spriteToUse, column * GameData.TILE_WIDTH + GameData.PIECE_SHRINK_SCALE,
+					row * GameData.TILE_WIDTH + GameData.PIECE_SHRINK_SCALE,
+					GameData.TILE_WIDTH - (GameData.PIECE_SHRINK_SCALE * 2),
+					GameData.TILE_HEIGHT - (GameData.PIECE_SHRINK_SCALE * 2), null);
+		} else {
+			int row = deathSlot / 2;
+			double column = deathSlot % 2;
+			if(deathSlot == 14) {
+				column = .5;
+			}
+			g.drawImage(spriteToUse, (int) ((column * GameData.DEATH_SLOT_WIDTH) + GameData.PIECE_SHRINK_SCALE_WHEN_DEAD),
+					100 + (row * GameData.DEATH_SLOT_HEIGHT) + GameData.PIECE_SHRINK_SCALE_WHEN_DEAD,
+					GameData.DEATH_SLOT_WIDTH - (GameData.PIECE_SHRINK_SCALE_WHEN_DEAD * 2),
+					GameData.DEATH_SLOT_HEIGHT - (GameData.PIECE_SHRINK_SCALE_WHEN_DEAD * 2), null);
+		}
 	}
 
 }

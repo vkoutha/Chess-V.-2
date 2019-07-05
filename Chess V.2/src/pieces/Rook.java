@@ -7,6 +7,8 @@ import game.GameData.Players;
 
 public class Rook extends Piece {
 
+	private int moveCount;
+
 	public Rook(int row, int column, Players player) {
 		super(row, column, player);
 		// TODO Auto-generated constructor stub
@@ -41,8 +43,7 @@ public class Rook extends Piece {
 			}
 		}
 		for (int c = column + 1; !inInvalidLocation(row, c); c++) {
-			if (Game.game.getTiles()[row][c].getPiece() != null
-					&& Game.game.getTiles()[row][c].containsEnemy(player)) {
+			if (Game.game.getTiles()[row][c].getPiece() != null && Game.game.getTiles()[row][c].containsEnemy(player)) {
 				availableMoves.add(new int[] { row, c });
 				break;
 			} else if (Game.game.getTiles()[row][c].getPiece() != null
@@ -53,8 +54,7 @@ public class Rook extends Piece {
 			}
 		}
 		for (int c = column - 1; !inInvalidLocation(row, c); c--) {
-			if (Game.game.getTiles()[row][c].getPiece() != null
-					&& Game.game.getTiles()[row][c].containsEnemy(player)) {
+			if (Game.game.getTiles()[row][c].getPiece() != null && Game.game.getTiles()[row][c].containsEnemy(player)) {
 				availableMoves.add(new int[] { row, c });
 				break;
 			} else if (Game.game.getTiles()[row][c].getPiece() != null
@@ -65,6 +65,15 @@ public class Rook extends Piece {
 			}
 		}
 		return availableMoves;
+	}
+	
+	public int getMoveCount() {
+		return moveCount;
+	}
+
+	public void move(int row, int column) {
+		super.move(row, column);
+		moveCount++;
 	}
 
 }

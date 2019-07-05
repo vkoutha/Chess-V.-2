@@ -2,11 +2,11 @@ package game;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
-
-import pieces.Piece;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 public class GameData {
 
@@ -16,29 +16,51 @@ public class GameData {
 	public static final int BOARD_WIDTH = 800;
 	public static final int BOARD_HEIGHT = FRAME_HEIGHT;
 	public static final int FRAME_WIDTH = BOARD_WIDTH + PLAYER_PANEL_WIDTH;
-	public static final int UPDATE_SPEED_MS = 50;
+	public static final int UPDATE_SPEED_MS = 1000;
 
 	public static final int ROWS = 8;
 	public static final int COLUMNS = 8;
 
 	public static final int TILE_WIDTH = BOARD_WIDTH / COLUMNS;
 	public static final int TILE_HEIGHT = BOARD_HEIGHT / ROWS;
-
-	public static final int VALID_MOVE_CIRCLE_SHRINK_SIZE = 42;
+	
+	public static final int DEATH_SLOT_WIDTH = PLAYER_PANEL_WIDTH / 2;
+	public static final int DEATH_SLOT_HEIGHT = PLAYER_PANEL_HEIGHT / 9;
+	
+	public static final int PIECE_SHRINK_SCALE = 10;
+	public static final int PIECE_SHRINK_SCALE_WHEN_DEAD = 10;
+	public static final int VALID_MOVE_CIRCLE_SHRINK_SCALE = 42;
+	
+	public static int PLAYER_1_TIMER_SECONDS = 10 * 60;
+	public static int PLAYER_2_TIMER_SECONDS = 10 * 60; 
 
 	public static final Color BROWN_TILE_COLOR = new Color(153, 76, 0);
 	public static final Color WHITE_TILE_COLOR = new Color(255, 178, 102);
 	public static final Color SELECTED_TILE_COLOR = new Color(255, 220, 46);
 	public static final Color VALID_MOVE_TILE_COLOR = new Color(7, 140, 0);
 	public static final Color IN_CHECK_TILE_COLOR = new Color(135, 0, 0);
+	public static final Color PLAYER_PANEL_BACKGROUND_COLOR = new Color(134, 96, 26);
 
 	public static BufferedImage pieceSpriteSheet;
 	// index 0 corresponds to Player 1 sprite, index 1 corresponds to Player 2
 	// sprite
 	public static BufferedImage[] pawnSprite, knightSprite, bishopSprite, rookSprite, queenSprite, kingSprite;
 
+	public static AudioInputStream pieceSoundEffect;
+	public static Clip soundPlayer;
+
 	public enum Players {
 		PLAYER_1, PLAYER_2
+	}
+
+	public static void resetSoundStreams() {
+		try {
+			pieceSoundEffect = AudioSystem
+					.getAudioInputStream(GameData.class.getResource("/sound/pieceSoundEffect.wav"));
+			soundPlayer = AudioSystem.getClip();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	static {
@@ -68,6 +90,10 @@ public class GameData {
 			kingSprite = new BufferedImage[2];
 			kingSprite[0] = pieceSpriteSheet.getSubimage(24, 25, 188 - 24, 191 - 25);
 			kingSprite[1] = pieceSpriteSheet.getSubimage(24, 238, 188 - 24, 404 - 238);
+
+			pieceSoundEffect = AudioSystem
+					.getAudioInputStream(GameData.class.getResource("/sound/pieceSoundEffect.wav"));
+			soundPlayer = AudioSystem.getClip();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
