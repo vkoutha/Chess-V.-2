@@ -1,6 +1,8 @@
 package game;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -8,21 +10,28 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import game.GameData.GameStates;
 import game.GameData.Players;
 import game.Renderer.BoardPanel;
 import game.Renderer.Panels;
 import game.Renderer.Player1Panel;
 import game.Renderer.Player2Panel;
+import network.Client;
+import network.OnlineGame;
+import network.Server;
 import pieces.Bishop;
 import pieces.King;
 import pieces.Knight;
@@ -45,18 +54,87 @@ public class Game implements ActionListener, MouseListener {
 	private Tile selectedTile;
 	private ArrayList<Piece> player1Pieces, deadPlayer1Pieces;
 	private ArrayList<Piece> player2Pieces, deadPlayer2Pieces;
+	private OnlineGame onlineGame;
+	private GameStates gameState;
 	private Players playerTurn;
+	private boolean isOnlineGame, isServer, isClient;
 
 	public Game() {
-		initFrame();
-		initGame();
-		timer = new Timer(GameData.UPDATE_SPEED_MS, this);
-		System.out.println("ok");
+		setGameState(GameStates.MENU);
 	}
 
-	private void initFrame() {
-		frame = new JFrame("Chess Revamped!");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	private void initMenuFrame() {
+		JPanel container = new JPanel();
+		container.setLayout(new BoxLayout(container, BoxLayout.PAGE_AXIS));
+		JLabel logoLbl = new JLabel("Chess V.2");
+		logoLbl.setForeground(Color.BLACK);
+		logoLbl.setFont(new Font("Arial", Font.BOLD, 50));
+		logoLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+		JButton singlePlayerBtn = new JButton(GameData.singlePlayerIcon);
+		singlePlayerBtn.setFocusable(false);
+		singlePlayerBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				setGameState(GameStates.IN_GAME);
+			}
+		});
+		singlePlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(singlePlayerBtn);
+		JButton twoPlayerBtn = new JButton(GameData.twoPlayerIcon);
+		twoPlayerBtn.setFocusable(false);
+		twoPlayerBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				setGameState(GameStates.IN_GAME);
+			}
+		});
+		twoPlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(twoPlayerBtn);
+		JButton startLocalGameBtn = new JButton(GameData.startLocalGameIcon);
+		startLocalGameBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				Server.startOnlineGame();
+				onlineGame = new OnlineGame(true);
+			}
+		});
+		startLocalGameBtn.setFocusable(false);
+		startLocalGameBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(startLocalGameBtn);
+		JButton joinLocalGameBtn = new JButton(GameData.joinLocalGameIcon);
+		joinLocalGameBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				Client.joinOnlineGame();
+				onlineGame = new OnlineGame(false);
+			}
+		});
+		joinLocalGameBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+		joinLocalGameBtn.setFocusable(false);
+		GameData.removeBackground(joinLocalGameBtn);
+		container.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
+		container.setPreferredSize(new Dimension(GameData.BOARD_WIDTH, GameData.BOARD_HEIGHT));
+		container.add(Box.createVerticalStrut(80));
+		container.add(logoLbl);
+		container.add(Box.createVerticalStrut(50));
+		container.add(singlePlayerBtn);
+		container.add(Box.createVerticalStrut(25));
+		container.add(twoPlayerBtn);
+		container.add(Box.createVerticalStrut(25));
+		container.add(startLocalGameBtn);
+		container.add(Box.createVerticalStrut(25));
+		container.add(joinLocalGameBtn);
+		frame.add(container);
+		frame.pack();
+		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
+	}
+
+	private void initInGameFrame() {
 		frame.setLayout(new BorderLayout());
 		player1Panel = new Player1Panel();
 		player1Panel.setPreferredSize(new Dimension(GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT));
@@ -89,15 +167,61 @@ public class Game implements ActionListener, MouseListener {
 		player1Panel.add(player1TimerLabel);
 		player2TimerLabel = new JLabel("Time remaining: ##:##");
 		player2TimerLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		player2TimerLabel.setBounds((GameData.PLAYER_PANEL_WIDTH / 2) - ((int) player2TimerLabel.getPreferredSize().getWidth() / 2), 50,
-				(int) player2TimerLabel.getPreferredSize().getWidth(), (int) player2TimerLabel.getPreferredSize().getHeight());
+		player2TimerLabel.setBounds(
+				(GameData.PLAYER_PANEL_WIDTH / 2) - ((int) player2TimerLabel.getPreferredSize().getWidth() / 2), 50,
+				(int) player2TimerLabel.getPreferredSize().getWidth(),
+				(int) player2TimerLabel.getPreferredSize().getHeight());
 		player2Panel.add(player2TimerLabel);
+	}
+
+	private void initSearchingFrame() {
+		JPanel container = new JPanel();
+		container.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
+		container.setPreferredSize(new Dimension(GameData.BOARD_WIDTH, GameData.BOARD_HEIGHT));
+		container.setLayout(null);
+		JLabel findingOpponentsLbl = new JLabel("Finding Opponent...");
+		findingOpponentsLbl.setFont(new Font("Arial", Font.BOLD, 70));
+		findingOpponentsLbl.setForeground(Color.BLACK);
+		findingOpponentsLbl.setBounds(
+				(int) ((container.getPreferredSize().getWidth() / 2)
+						- (findingOpponentsLbl.getPreferredSize().getWidth() / 2)),
+				(int) ((container.getPreferredSize().getHeight() / 2)
+						- (findingOpponentsLbl.getPreferredSize().getHeight())),
+				(int) findingOpponentsLbl.getPreferredSize().getWidth(),
+				(int) findingOpponentsLbl.getPreferredSize().getHeight());
+		container.add(findingOpponentsLbl);
+		frame.add(container);
+		frame.pack();
+	}
+
+	public void setGameState(GameStates state) {
+		gameState = state;
+		if (frame != null) {
+			frame.dispose();
+		}
+		frame = new JFrame("Chess Revamped!");
+		switch (state) {
+		case MENU:
+			initMenuFrame();
+			break;
+		case IN_GAME:
+			initInGameFrame();
+			initGame();
+			break;
+		case SEARCHING:
+			initSearchingFrame();
+			break;
+		}
+		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
 	}
 
 	private void initGame() {
 		initTiles();
 		initPlayer1Pieces();
 		initPlayer2Pieces();
+		timer = new Timer(GameData.UPDATE_SPEED_MS, this);
+		gameState = GameStates.IN_GAME;
 		playerTurn = Players.PLAYER_1;
 	}
 
@@ -143,27 +267,58 @@ public class Game implements ActionListener, MouseListener {
 	}
 
 	public void render(Graphics g, Panels panelType) {
+		System.out.println(boardPanel.getPreferredSize().getWidth());
 		switch (panelType) {
 		case BOARD:
-			for (int row = 0; row < tiles.length; row++) {
-				for (int col = 0; col < tiles[row].length; col++) {
-					tiles[row][col].render(g);
+			switch (gameState) {
+			case MENU:
+				break;
+			case SEARCHING:
+				break;
+			case IN_GAME:
+				for (int row = 0; row < tiles.length; row++) {
+					for (int col = 0; col < tiles[row].length; col++) {
+						tiles[row][col].render(g);
+					}
 				}
+				player1Pieces.forEach((piece) -> piece.render(g));
+				player2Pieces.forEach((piece) -> piece.render(g));
+				break;
 			}
-			player1Pieces.forEach((piece) -> piece.render(g));
-			player2Pieces.forEach((piece) -> piece.render(g));
 			break;
 		case PLAYER_1:
-			int p1Minutes = GameData.PLAYER_1_TIMER_SECONDS / 60;
-			int p1Seconds = GameData.PLAYER_1_TIMER_SECONDS % 60;
-			deadPlayer1Pieces.forEach((piece) -> piece.render(g));
-			player1TimerLabel.setText("Time remaining: " + p1Minutes + ":" + (p1Seconds < 10 ? "0" + p1Seconds : p1Seconds));
+			switch (gameState) {
+			case MENU:
+				break;
+			case SEARCHING:
+				break;
+			case IN_GAME:
+				int p1Minutes = GameData.PLAYER_1_TIMER_SECONDS / 60;
+				int p1Seconds = GameData.PLAYER_1_TIMER_SECONDS % 60;
+				g.setColor(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
+				g.fillRect(0, 0, GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT);
+				deadPlayer1Pieces.forEach((piece) -> piece.render(g));
+				player1TimerLabel
+						.setText("Time remaining: " + p1Minutes + ":" + (p1Seconds < 10 ? "0" + p1Seconds : p1Seconds));
+				break;
+			}
 			break;
 		case PLAYER_2:
-			int p2Minutes = GameData.PLAYER_2_TIMER_SECONDS / 60;
-			int p2Seconds = GameData.PLAYER_2_TIMER_SECONDS % 60;
-			deadPlayer2Pieces.forEach((piece) -> piece.render(g));
-			player2TimerLabel.setText("Time remaining: " + p2Minutes + ":" + (p2Seconds < 10 ? "0" + p2Seconds : p2Seconds));
+			switch (gameState) {
+			case MENU:
+				break;
+			case SEARCHING:
+				break;
+			case IN_GAME:
+				int p2Minutes = GameData.PLAYER_2_TIMER_SECONDS / 60;
+				int p2Seconds = GameData.PLAYER_2_TIMER_SECONDS % 60;
+				g.setColor(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
+				g.fillRect(0, 0, GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT);
+				deadPlayer2Pieces.forEach((piece) -> piece.render(g));
+				player2TimerLabel
+						.setText("Time remaining: " + p2Minutes + ":" + (p2Seconds < 10 ? "0" + p2Seconds : p2Seconds));
+				break;
+			}
 			break;
 		}
 	}
@@ -174,8 +329,10 @@ public class Game implements ActionListener, MouseListener {
 		if (selectedTile == null) {
 			// If tile selected has a piece and it is the player's own piece
 			if (selTilePiece != null && playerTurn == selTilePiece.getPlayer()) {
-				selectedTile = tiles[sRow][sCol];
-				displayPiecesMoves(selTilePiece, true);
+				if (!isOnlineGame || (isOnlineGame && playerTurn == onlineGame.getOwnPlayer())) {
+					selectedTile = tiles[sRow][sCol];
+					displayPiecesMoves(selTilePiece, true);
+				}
 			}
 		} else { // If a tile has already been selected
 			// If the user selects a tile that is not a valid move
@@ -190,6 +347,9 @@ public class Game implements ActionListener, MouseListener {
 				// If the user selects a tile that is a valid move
 			} else if (selectedTile.getPiece().isValidMove(sRow, sCol)) {
 				displayPiecesMoves(selectedTile.getPiece(), false);
+				if (isOnlineGame) {
+					onlineGame.sendMove(selectedTile.getPiece().getBoardLocation(), new int[] { sRow, sCol });
+				}
 				selectedTile.getPiece().move(sRow, sCol);
 				selectedTile = null;
 				endPlayerTurn();
@@ -255,6 +415,10 @@ public class Game implements ActionListener, MouseListener {
 		}
 	}
 
+	public void setAsOnlineGame(boolean isOnlineGame) {
+		this.isOnlineGame = isOnlineGame;
+	}
+
 	public JFrame getFrame() {
 		return frame;
 	}
@@ -290,6 +454,11 @@ public class Game implements ActionListener, MouseListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		renderer.repaint();
+		if (isOnlineGame && playerTurn != onlineGame.getOwnPlayer()) {
+			int[][] move = onlineGame.getOpponentMove();
+			tiles[move[0][0]][move[0][1]].getPiece().move(move[1][0], move[1][1]);
+			endPlayerTurn();
+		}
 		GameData.PLAYER_1_TIMER_SECONDS--;
 		GameData.PLAYER_2_TIMER_SECONDS--;
 	}
@@ -344,6 +513,15 @@ public class Game implements ActionListener, MouseListener {
 				game = new Game();
 			}
 		});
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				if(Game.game.isOnlineGame) {
+					Game.game.onlineGame.close();
+				}
+			}
+		}));
 	}
 
 }

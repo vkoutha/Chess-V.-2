@@ -108,6 +108,10 @@ public abstract class Piece {
 	public int getColumn() {
 		return column;
 	}
+	
+	public int[] getBoardLocation() {
+		return new int[] {row, column};
+	}
 
 	public Players getPlayer() {
 		return player;

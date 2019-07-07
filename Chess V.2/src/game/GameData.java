@@ -1,12 +1,16 @@
 package game;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 
 public class GameData {
 
@@ -23,47 +27,67 @@ public class GameData {
 
 	public static final int TILE_WIDTH = BOARD_WIDTH / COLUMNS;
 	public static final int TILE_HEIGHT = BOARD_HEIGHT / ROWS;
-	
+
 	public static final int DEATH_SLOT_WIDTH = PLAYER_PANEL_WIDTH / 2;
 	public static final int DEATH_SLOT_HEIGHT = PLAYER_PANEL_HEIGHT / 9;
-	
+
 	public static final int PIECE_SHRINK_SCALE = 10;
 	public static final int PIECE_SHRINK_SCALE_WHEN_DEAD = 10;
 	public static final int VALID_MOVE_CIRCLE_SHRINK_SCALE = 42;
-	
+
 	public static int PLAYER_1_TIMER_SECONDS = 10 * 60;
-	public static int PLAYER_2_TIMER_SECONDS = 10 * 60; 
+	public static int PLAYER_2_TIMER_SECONDS = 10 * 60;
+	
+	public static final int CONNECTION_TIMEOUT_MS = 5000;
+	public static final int NETWORK_PORT = 1077;
 
 	public static final Color BROWN_TILE_COLOR = new Color(153, 76, 0);
 	public static final Color WHITE_TILE_COLOR = new Color(255, 178, 102);
 	public static final Color SELECTED_TILE_COLOR = new Color(255, 220, 46);
 	public static final Color VALID_MOVE_TILE_COLOR = new Color(7, 140, 0);
 	public static final Color IN_CHECK_TILE_COLOR = new Color(135, 0, 0);
-	public static final Color PLAYER_PANEL_BACKGROUND_COLOR = new Color(134, 96, 26);
+	public static final Color PLAYER_PANEL_BACKGROUND_COLOR = new Color(240, 205, 120);
 
 	public static BufferedImage pieceSpriteSheet;
 	// index 0 corresponds to Player 1 sprite, index 1 corresponds to Player 2
 	// sprite
 	public static BufferedImage[] pawnSprite, knightSprite, bishopSprite, rookSprite, queenSprite, kingSprite;
 
+	public static Icon singlePlayerIcon, twoPlayerIcon, startLocalGameIcon, joinLocalGameIcon;
+
 	public static AudioInputStream pieceSoundEffect;
 	public static Clip soundPlayer;
+
+	public enum GameStates {
+		MENU, SEARCHING, IN_GAME
+	}
 
 	public enum Players {
 		PLAYER_1, PLAYER_2
 	}
 
-	public static void resetSoundStreams() {
+	public static void removeBackground(JButton button) {
+		button.setContentAreaFilled(false);
+		button.setFocusPainted(false);
+		button.setBorderPainted(false);
+	}
+
+	private static void initButtons() {
 		try {
-			pieceSoundEffect = AudioSystem
-					.getAudioInputStream(GameData.class.getResource("/sound/pieceSoundEffect.wav"));
-			soundPlayer = AudioSystem.getClip();
-		} catch (Exception e) {
+		BufferedImage singlePlayerImg = ImageIO.read(GameData.class.getResource("/img/buttonUnselected.png"));
+		singlePlayerIcon = new ImageIcon(singlePlayerImg.getScaledInstance(GameData.BOARD_WIDTH / 3, 50, Image.SCALE_DEFAULT));
+		BufferedImage twoPlayerImg = ImageIO.read(GameData.class.getResource("/img/buttonUnselected.png"));
+		twoPlayerIcon = new ImageIcon(twoPlayerImg.getScaledInstance(GameData.BOARD_WIDTH / 3, 50, Image.SCALE_DEFAULT));
+		BufferedImage startLocalGameImg = ImageIO.read(GameData.class.getResource("/img/buttonUnselected.png"));
+		startLocalGameIcon = new ImageIcon(startLocalGameImg.getScaledInstance(GameData.BOARD_WIDTH / 3, 50, Image.SCALE_DEFAULT));
+		BufferedImage joinLocalGameImg = ImageIO.read(GameData.class.getResource("/img/buttonUnselected.png"));
+		joinLocalGameIcon = new ImageIcon(joinLocalGameImg.getScaledInstance(GameData.BOARD_WIDTH / 3, 50, Image.SCALE_DEFAULT));
+		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	static {
+	private static void initSprites() {
 		try {
 			pieceSpriteSheet = ImageIO.read(GameData.class.getResource("/img/chessSpriteSheet.png"));
 
@@ -90,13 +114,26 @@ public class GameData {
 			kingSprite = new BufferedImage[2];
 			kingSprite[0] = pieceSpriteSheet.getSubimage(24, 25, 188 - 24, 191 - 25);
 			kingSprite[1] = pieceSpriteSheet.getSubimage(24, 238, 188 - 24, 404 - 238);
-
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void resetSoundStreams() {
+		try {
 			pieceSoundEffect = AudioSystem
 					.getAudioInputStream(GameData.class.getResource("/sound/pieceSoundEffect.wav"));
 			soundPlayer = AudioSystem.getClip();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	static {
+		initButtons();
+		initSprites();
+		resetSoundStreams();
 	}
 
 }
