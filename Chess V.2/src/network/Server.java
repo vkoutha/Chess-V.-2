@@ -1,7 +1,5 @@
 package network;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;

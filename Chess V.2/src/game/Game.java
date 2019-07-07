@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -57,7 +56,7 @@ public class Game implements ActionListener, MouseListener {
 	private OnlineGame onlineGame;
 	private GameStates gameState;
 	private Players playerTurn;
-	private boolean isOnlineGame, isServer, isClient;
+	private boolean isOnlineGame;
 
 	public Game() {
 		setGameState(GameStates.MENU);
