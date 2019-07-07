@@ -419,6 +419,12 @@ public class Game implements ActionListener, MouseListener {
 		this.isOnlineGame = isOnlineGame;
 	}
 
+	public void startTimer() {
+		if (!timer.isRunning()) {
+			timer.start();
+		}
+	}
+
 	public JFrame getFrame() {
 		return frame;
 	}
@@ -517,7 +523,7 @@ public class Game implements ActionListener, MouseListener {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				if(Game.game.isOnlineGame) {
+				if (Game.game.isOnlineGame) {
 					Game.game.onlineGame.close();
 				}
 			}

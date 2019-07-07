@@ -28,6 +28,7 @@ public class Client {
 		connectToServer();
 		Game.game.setGameState(GameStates.IN_GAME);
 		Game.game.setAsOnlineGame(true);
+		Game.game.startTimer();
 	}
 
 	private static void checkForData() {
