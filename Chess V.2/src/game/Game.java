@@ -42,7 +42,7 @@ import pieces.Rook;
 public class Game implements ActionListener, MouseListener {
 
 	public static Game game;
-	private JFrame frame;
+	private JFrame frame, promotionMenu;
 	private JLabel player1TimerLabel, player2TimerLabel;
 	private Renderer renderer;
 	private Renderer.Player1Panel player1Panel;
@@ -157,14 +157,14 @@ public class Game implements ActionListener, MouseListener {
 		frame.setLocationRelativeTo(null);
 		player1Panel.setLayout(null);
 		player2Panel.setLayout(null);
-		player1TimerLabel = new JLabel("Time remaining: ##:##");
+		player1TimerLabel = new JLabel("Time remaining: ##:###");
 		player1TimerLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		player1TimerLabel.setBounds(
 				(GameData.PLAYER_PANEL_WIDTH / 2) - ((int) player1TimerLabel.getPreferredSize().getWidth() / 2), 50,
 				(int) player1TimerLabel.getPreferredSize().getWidth(),
 				(int) player1TimerLabel.getPreferredSize().getHeight());
 		player1Panel.add(player1TimerLabel);
-		player2TimerLabel = new JLabel("Time remaining: ##:##");
+		player2TimerLabel = new JLabel("Time remaining: ##:###");
 		player2TimerLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		player2TimerLabel.setBounds(
 				(GameData.PLAYER_PANEL_WIDTH / 2) - ((int) player2TimerLabel.getPreferredSize().getWidth() / 2), 50,
@@ -393,6 +393,17 @@ public class Game implements ActionListener, MouseListener {
 			setWinner(null);
 		}
 	}
+	
+	public void initPromotionMenu(Pawn pawn) {
+		frame.getContentPane().removeMouseListener(this);
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				promotionMenu = new PromotionMenu(pawn);
+			}
+		});
+	}
 
 	private void playPieceSoundEffect() {
 		try {
@@ -464,8 +475,11 @@ public class Game implements ActionListener, MouseListener {
 			tiles[move[0][0]][move[0][1]].getPiece().move(move[1][0], move[1][1]);
 			endPlayerTurn();
 		}
-		GameData.PLAYER_1_TIMER_SECONDS--;
-		GameData.PLAYER_2_TIMER_SECONDS--;
+		if (playerTurn == Players.PLAYER_1) {
+			GameData.PLAYER_1_TIMER_SECONDS--;
+		} else {
+			GameData.PLAYER_2_TIMER_SECONDS--;
+		}
 	}
 
 	@Override

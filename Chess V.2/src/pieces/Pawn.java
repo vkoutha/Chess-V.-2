@@ -57,6 +57,9 @@ public class Pawn extends Piece {
 	public void move(int row, int column) {
 		super.move(row, column);
 		moveCount++;
+		if(row == (player == Players.PLAYER_1 ? 0 : 7)) {
+			Game.game.initPromotionMenu(this);
+		}
 	}
 
 }
