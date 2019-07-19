@@ -100,7 +100,7 @@ public class GameData {
 	}
 
 	private static void initPromotionMenuButtonIcons() {
-		int width = 80;
+		int width = 75;
 		int height = 150;
 		try {
 			knightIcon = new Icon[2];
@@ -171,8 +171,8 @@ public class GameData {
 	}
 
 	static {
-		initButtonIcons();
 		initSprites();
+		initButtonIcons();
 		resetSoundStreams();
 	}
 

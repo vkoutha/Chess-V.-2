@@ -36,7 +36,7 @@ public class PromotionMenu extends JFrame {
 
 	private void initFrame() {
 		container = new JPanel();
-		container.setPreferredSize(new Dimension(GameData.PROMOTION_MENU_WIDTH, GameData.PROMOTION_MENU_HEIGHT));
+		container.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
 		container.setLayout(new BoxLayout(container, BoxLayout.LINE_AXIS));
 		initButtons();
 		initButtonListeners();
@@ -48,20 +48,27 @@ public class PromotionMenu extends JFrame {
 		container.add(rookButton);
 		container.add(Box.createHorizontalStrut(20));
 		container.add(queenButton);
+		container.add(Box.createHorizontalStrut(20));
 		add(container);
 		pack();
+		setLocationRelativeTo(null);
+		setVisible(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	}
 	
 	private void initButtons() {
 		knightButton = new JButton(GameData.knightIcon[iconIndexToUse]);
 		knightButton.setAlignmentY(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(knightButton);
 		bishopButton = new JButton(GameData.bishopIcon[iconIndexToUse]);
 		bishopButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(bishopButton);
 		rookButton = new JButton(GameData.rookIcon[iconIndexToUse]);
 		rookButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(rookButton);
 		queenButton = new JButton(GameData.queenIcon[iconIndexToUse]);
 		queenButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(queenButton);
 	}
 
 	private void initButtonListeners() {
@@ -71,7 +78,8 @@ public class PromotionMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				playerPieces.add(new Knight(pawn.getRow(), pawn.getColumn(), pawn.getPlayer()));
-				pawn.kill();
+				playerPieces.remove(pawn);
+				Game.game.getFrame().getContentPane().addMouseListener(Game.game);
 				dispose();
 				
 			}
@@ -81,7 +89,8 @@ public class PromotionMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				playerPieces.add(new Bishop(pawn.getRow(), pawn.getColumn(), pawn.getPlayer()));
-				pawn.kill();
+				playerPieces.remove(pawn);
+				Game.game.getFrame().getContentPane().addMouseListener(Game.game);
 				dispose();
 			}
 		});
@@ -90,7 +99,8 @@ public class PromotionMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				playerPieces.add(new Rook(pawn.getRow(), pawn.getColumn(), pawn.getPlayer()));
-				pawn.kill();
+				playerPieces.remove(pawn);
+				Game.game.getFrame().getContentPane().addMouseListener(Game.game);
 				dispose();
 			}
 		});
@@ -99,7 +109,8 @@ public class PromotionMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				playerPieces.add(new Queen(pawn.getRow(), pawn.getColumn(), pawn.getPlayer()));
-				pawn.kill();
+				playerPieces.remove(pawn);
+				Game.game.getFrame().getContentPane().addMouseListener(Game.game);
 				dispose();
 			}
 		});

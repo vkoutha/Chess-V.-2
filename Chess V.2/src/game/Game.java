@@ -266,7 +266,6 @@ public class Game implements ActionListener, MouseListener {
 	}
 
 	public void render(Graphics g, Panels panelType) {
-		System.out.println(boardPanel.getPreferredSize().getWidth());
 		switch (panelType) {
 		case BOARD:
 			switch (gameState) {
