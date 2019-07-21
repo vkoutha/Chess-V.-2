@@ -23,6 +23,7 @@ import pieces.Rook;
 public class PromotionMenu extends JFrame {
 
 	private Pawn pawn;
+	private Piece pieceToAdd;
 	private JPanel container;
 	private JButton knightButton, bishopButton, rookButton, queenButton;
 	private int iconIndexToUse;
@@ -30,6 +31,7 @@ public class PromotionMenu extends JFrame {
 	public PromotionMenu(Pawn pawn) {
 		super("Promotion Menu");
 		this.pawn = pawn;
+		
 		iconIndexToUse = (pawn.getPlayer() == Players.PLAYER_1 ? 0 : 1);
 		initFrame();
 	}
@@ -72,48 +74,48 @@ public class PromotionMenu extends JFrame {
 	}
 
 	private void initButtonListeners() {
-		ArrayList<Piece> playerPieces = (pawn.getPlayer() == Players.PLAYER_1 ? Game.game.getPlayer1Pieces() : Game.game.getPlayer2Pieces());
 		knightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				playerPieces.add(new Knight(pawn.getRow(), pawn.getColumn(), pawn.getPlayer()));
-				playerPieces.remove(pawn);
-				Game.game.getFrame().getContentPane().addMouseListener(Game.game);
-				dispose();
-				
+				pieceToAdd = new Knight(pawn.getRow(), pawn.getColumn(), pawn.getPlayer());	
+				close(pieceToAdd);
 			}
 		});
 		bishopButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				playerPieces.add(new Bishop(pawn.getRow(), pawn.getColumn(), pawn.getPlayer()));
-				playerPieces.remove(pawn);
-				Game.game.getFrame().getContentPane().addMouseListener(Game.game);
-				dispose();
+				pieceToAdd = new Bishop(pawn.getRow(), pawn.getColumn(), pawn.getPlayer());
+				close(pieceToAdd);
 			}
 		});
 		rookButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				playerPieces.add(new Rook(pawn.getRow(), pawn.getColumn(), pawn.getPlayer()));
-				playerPieces.remove(pawn);
-				Game.game.getFrame().getContentPane().addMouseListener(Game.game);
-				dispose();
+				pieceToAdd = new Rook(pawn.getRow(), pawn.getColumn(), pawn.getPlayer());
+				close(pieceToAdd);
 			}
 		});
 		queenButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				playerPieces.add(new Queen(pawn.getRow(), pawn.getColumn(), pawn.getPlayer()));
-				playerPieces.remove(pawn);
-				Game.game.getFrame().getContentPane().addMouseListener(Game.game);
-				dispose();
+				pieceToAdd = new Queen(pawn.getRow(), pawn.getColumn(), pawn.getPlayer());
+				close(pieceToAdd);
 			}
 		});
+	}
+	
+	private void close(Piece pieceToAdd) {
+		ArrayList<Piece> playerPieces = (pawn.getPlayer() == Players.PLAYER_1 ? Game.game.getPlayer1Pieces() : Game.game.getPlayer2Pieces());
+		playerPieces.remove(pawn);
+		if(Game.game.isOnlineGame()) {
+			Game.game.getOnlineGame().sendPawnPromotion(pawn, pieceToAdd);
+		}
+		Game.game.getFrame().getContentPane().addMouseListener(Game.game);
+		dispose();
 	}
 
 }

@@ -2,26 +2,37 @@ package network;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 import game.GameData.Players;
+import pieces.Pawn;
+import pieces.Piece;
 
 public class OnlineGame {
 
-	private DataOutputStream outputStream;
-	private DataInputStream inputStream;
+	private ObjectOutputStream outputStream;
+	private ObjectInputStream inputStream;
 	private Players ownPlayer;
 
 	public OnlineGame(boolean isServer) {
 		try {
+			OutputStream outputStream;
+			InputStream inputStream;
 			if (isServer) {
-				outputStream = new DataOutputStream(Server.getSocket().getOutputStream());
-				inputStream = new DataInputStream(Server.getSocket().getInputStream());
+				outputStream = Server.getSocket().getOutputStream();
+				inputStream = Server.getSocket().getInputStream();
 				ownPlayer = Players.PLAYER_1;
 			} else {
-				outputStream = new DataOutputStream(Client.getSocket().getOutputStream());
-				inputStream = new DataInputStream(Client.getSocket().getInputStream());
+				outputStream = Client.getSocket().getOutputStream();
+				inputStream = Client.getSocket().getInputStream();
 				ownPlayer = Players.PLAYER_2;
 			}
+			outputStream = new DataOutputStream(outputStream);
+			inputStream = new DataInputStream(inputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -39,6 +50,29 @@ public class OnlineGame {
 		}
 	}
 
+	public void sendPawnPromotion(Pawn pawn, Piece newPiece) {
+		try {
+			outputStream.writeObject(pawn);
+			outputStream.writeObject(newPiece);
+			outputStream.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public Piece[] recievePawnPromotion() {
+		Piece[] pieces = null;
+		try {
+			pieces = new Piece[] {(Piece) inputStream.readObject(), (Piece) inputStream.readObject()};
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return pieces;
+	}
+
 	public int[][] getOpponentMove() {
 		int[] initial = {};
 		int[] destination = {};
@@ -51,19 +85,19 @@ public class OnlineGame {
 		int[][] opponentMove = { initial, destination };
 		return opponentMove;
 	}
-	
+
 	public Players getOwnPlayer() {
 		return ownPlayer;
 	}
-	
+
 	public void close() {
 		try {
 			Client.getSocket().close();
 			Server.getSocket().close();
 			Server.getServerSocket().close();
-			inputStream.close();
 			outputStream.close();
-		}catch(Exception e) {
+			inputStream.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

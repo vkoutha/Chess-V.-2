@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import game.Game;
 import game.GameData.Players;
+import network.OnlineGame;
 
 public class Pawn extends Piece {
 
@@ -57,8 +58,14 @@ public class Pawn extends Piece {
 	public void move(int row, int column) {
 		super.move(row, column);
 		moveCount++;
-		if(row == (player == Players.PLAYER_1 ? 0 : 7)) {
-			Game.game.initPromotionMenu(this);
+		if (row == (player == Players.PLAYER_1 ? 0 : 7)) {
+			if (!Game.game.isOnlineGame()) {
+				Game.game.initPromotionMenu(this);
+			} else {
+				if(player == Game.game.getOnlineGame().getOwnPlayer()) {
+					Game.game.initPromotionMenu(this);
+				}
+			}
 		}
 	}
 

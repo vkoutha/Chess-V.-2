@@ -433,6 +433,14 @@ public class Game implements ActionListener, MouseListener {
 			timer.start();
 		}
 	}
+	
+	public boolean isOnlineGame() {
+		return isOnlineGame;
+	}
+	
+	public OnlineGame getOnlineGame() {
+		return onlineGame;
+	}
 
 	public JFrame getFrame() {
 		return frame;
