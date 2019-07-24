@@ -34,15 +34,18 @@ public class Client {
 	private static void checkForData() {
 		DatagramSocket datagramSocket = null;
 		try {
-			datagramSocket = new DatagramSocket(GameData.NETWORK_PORT);
-			byte[] data = new byte[256];
-			DatagramPacket recievingPacket = new DatagramPacket(data, data.length);
-			System.out.println("looking for data");
-			datagramSocket.receive(recievingPacket);
-			System.out.println("Data recieved: " + new String(data).toString());
-			String recievedStr = new String(recievingPacket.getData());
-			if (gamePassword.equals(recievedStr)) {
-				socket = new Socket(recievingPacket.getAddress(), recievingPacket.getPort());
+			while (true) {
+				datagramSocket = new DatagramSocket(GameData.NETWORK_PORT);
+				byte[] data = new byte[256];
+				DatagramPacket recievingPacket = new DatagramPacket(data, data.length);
+				System.out.println("looking for data");
+				datagramSocket.receive(recievingPacket);
+				System.out.println("Data recieved: " + new String(data).toString());
+				String recievedStr = new String(recievingPacket.getData());
+				if (gamePassword.equals(recievedStr)) {
+					socket = new Socket(recievingPacket.getAddress(), GameData.NETWORK_PORT);
+					break;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -53,12 +56,12 @@ public class Client {
 
 	private static void connectToServer() {
 		try {
-			socket = new Socket(serverIP, GameData.NETWORK_PORT);
+			// socket = new Socket(serverIP, GameData.NETWORK_PORT);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static Socket getSocket() {
 		return socket;
 	}
