@@ -14,7 +14,7 @@ import game.GameData.GameStates;
 public class Client {
 
 	private static Socket socket;
-	private static String gamePassword, serverIP;
+	private static String gamePassword;
 
 	public static void joinOnlineGame() {
 		// Yes == 0, 1 == no
@@ -24,14 +24,13 @@ public class Client {
 		} else {
 			gamePassword = "";
 		}
-		checkForData();
-		connectToServer();
+		checkForDataAndConnectToServer();
 		Game.game.setGameState(GameStates.IN_GAME);
 		Game.game.setAsOnlineGame(true);
 		Game.game.startTimer();
 	}
 
-	private static void checkForData() {
+	private static void checkForDataAndConnectToServer() {
 		DatagramSocket datagramSocket = null;
 		try {
 			while (true) {
@@ -51,14 +50,6 @@ public class Client {
 			e.printStackTrace();
 		} finally {
 			datagramSocket.close();
-		}
-	}
-
-	private static void connectToServer() {
-		try {
-			// socket = new Socket(serverIP, GameData.NETWORK_PORT);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

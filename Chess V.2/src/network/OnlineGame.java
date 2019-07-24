@@ -62,17 +62,6 @@ public class OnlineGame {
 
 	}
 
-	public Piece[] recievePawnPromotion() {
-		Piece[] pieces = null;
-		try {
-			pieces = new Piece[] {(Piece) inputStream.readObject(), (Piece) inputStream.readObject()};
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return pieces;
-	}
-
 	public int[][] getOpponentMove() {
 		int[] initial = {};
 		int[] destination = {};
@@ -84,6 +73,17 @@ public class OnlineGame {
 		}
 		int[][] opponentMove = { initial, destination };
 		return opponentMove;
+	}
+
+	public Piece[] recievePawnPromotion() {
+		Piece[] pieces = null;
+		try {
+			pieces = new Piece[] {(Piece) inputStream.readObject(), (Piece) inputStream.readObject()};
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return pieces;
 	}
 
 	public Players getOwnPlayer() {
