@@ -2,6 +2,7 @@ package network;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.Socket;
 
 import javax.swing.JOptionPane;
@@ -23,7 +24,6 @@ public class Client {
 		} else {
 			gamePassword = "";
 		}
-		Game.game.setGameState(GameStates.SEARCHING);
 		checkForData();
 		connectToServer();
 		Game.game.setGameState(GameStates.IN_GAME);
@@ -32,20 +32,22 @@ public class Client {
 	}
 
 	private static void checkForData() {
-		byte[] data = new byte[256];
-		DatagramSocket socket = null;
+		DatagramSocket datagramSocket = null;
 		try {
-			socket = new DatagramSocket();
+			datagramSocket = new DatagramSocket(GameData.NETWORK_PORT);
+			byte[] data = new byte[256];
 			DatagramPacket recievingPacket = new DatagramPacket(data, data.length);
-			socket.receive(recievingPacket);
+			System.out.println("looking for data");
+			datagramSocket.receive(recievingPacket);
+			System.out.println("Data recieved: " + new String(data).toString());
 			String recievedStr = new String(recievingPacket.getData());
 			if (gamePassword.equals(recievedStr)) {
-				serverIP = recievingPacket.getAddress().getHostAddress();
+				socket = new Socket(recievingPacket.getAddress(), recievingPacket.getPort());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			socket.close();
+			datagramSocket.close();
 		}
 	}
 

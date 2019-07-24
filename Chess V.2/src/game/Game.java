@@ -69,18 +69,8 @@ public class Game implements ActionListener, MouseListener {
 		logoLbl.setForeground(Color.BLACK);
 		logoLbl.setFont(new Font("Arial", Font.BOLD, 50));
 		logoLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-		JButton singlePlayerBtn = new JButton(GameData.singlePlayerIcon);
-		singlePlayerBtn.setFocusable(false);
-		singlePlayerBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				setGameState(GameStates.IN_GAME);
-			}
-		});
-		singlePlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-		GameData.removeBackground(singlePlayerBtn);
-		JButton twoPlayerBtn = new JButton(GameData.twoPlayerIcon);
+		JButton twoPlayerBtn = new JButton(GameData.twoPlayerIcon[0]);
+		twoPlayerBtn.setRolloverIcon(GameData.twoPlayerIcon[1]);
 		twoPlayerBtn.setFocusable(false);
 		twoPlayerBtn.addActionListener(new ActionListener() {
 			@Override
@@ -91,23 +81,40 @@ public class Game implements ActionListener, MouseListener {
 		});
 		twoPlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 		GameData.removeBackground(twoPlayerBtn);
-		JButton startLocalGameBtn = new JButton(GameData.startLocalGameIcon);
+		JButton singlePlayerBtn = new JButton(GameData.singlePlayerIcon[0]);
+		singlePlayerBtn.setRolloverIcon(GameData.singlePlayerIcon[1]);
+		singlePlayerBtn.setFocusable(false);
+		singlePlayerBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				setGameState(GameStates.IN_GAME);
+			}
+		});
+		singlePlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(singlePlayerBtn);
+		JButton startLocalGameBtn = new JButton(GameData.startLocalGameIcon[0]);
+		startLocalGameBtn.setRolloverIcon(GameData.startLocalGameIcon[1]);
 		startLocalGameBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				setGameState(GameStates.SEARCHING);
 				Server.startOnlineGame();
 				onlineGame = new OnlineGame(true);
+				setGameState(GameStates.IN_GAME);
 			}
 		});
 		startLocalGameBtn.setFocusable(false);
 		startLocalGameBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 		GameData.removeBackground(startLocalGameBtn);
-		JButton joinLocalGameBtn = new JButton(GameData.joinLocalGameIcon);
+		JButton joinLocalGameBtn = new JButton(GameData.joinLocalGameIcon[0]);
+		joinLocalGameBtn.setRolloverIcon(GameData.joinLocalGameIcon[1]);
 		joinLocalGameBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				setGameState(GameStates.SEARCHING);
 				Client.joinOnlineGame();
 				onlineGame = new OnlineGame(false);
 			}
@@ -120,9 +127,9 @@ public class Game implements ActionListener, MouseListener {
 		container.add(Box.createVerticalStrut(80));
 		container.add(logoLbl);
 		container.add(Box.createVerticalStrut(50));
-		container.add(singlePlayerBtn);
-		container.add(Box.createVerticalStrut(25));
 		container.add(twoPlayerBtn);
+		container.add(Box.createVerticalStrut(25));
+		container.add(singlePlayerBtn);
 		container.add(Box.createVerticalStrut(25));
 		container.add(startLocalGameBtn);
 		container.add(Box.createVerticalStrut(25));
@@ -131,6 +138,22 @@ public class Game implements ActionListener, MouseListener {
 		frame.pack();
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
+	}
+	
+	private void initTwoPlayerButton(JButton button) {
+		
+	}
+	
+	private void initSinglePlayerButton() {
+		
+	}
+	
+	private void initStartGameButton() {
+		
+	}
+	
+	private void initJoinGameButton() {
+		
 	}
 
 	private void initInGameFrame() {

@@ -55,7 +55,7 @@ public class GameData {
 	// sprite
 	public static BufferedImage[] pawnSprite, knightSprite, bishopSprite, rookSprite, queenSprite, kingSprite;
 
-	public static Icon singlePlayerIcon, twoPlayerIcon, startLocalGameIcon, joinLocalGameIcon;
+	public static Icon[] singlePlayerIcon, twoPlayerIcon, startLocalGameIcon, joinLocalGameIcon;
 	public static Icon[] knightIcon, bishopIcon, rookIcon, queenIcon;
 
 	public static AudioInputStream pieceSoundEffect;
@@ -82,18 +82,28 @@ public class GameData {
 
 	private static void initMainMenuButtonIcons() {
 		try {
-			BufferedImage singlePlayerImg = ImageIO.read(GameData.class.getResource("/img/buttonUnselected.png"));
-			singlePlayerIcon = new ImageIcon(
-					singlePlayerImg.getScaledInstance(GameData.BOARD_WIDTH / 3, 50, Image.SCALE_DEFAULT));
-			BufferedImage twoPlayerImg = ImageIO.read(GameData.class.getResource("/img/buttonUnselected.png"));
-			twoPlayerIcon = new ImageIcon(
-					twoPlayerImg.getScaledInstance(GameData.BOARD_WIDTH / 3, 50, Image.SCALE_DEFAULT));
-			BufferedImage startLocalGameImg = ImageIO.read(GameData.class.getResource("/img/buttonUnselected.png"));
-			startLocalGameIcon = new ImageIcon(
-					startLocalGameImg.getScaledInstance(GameData.BOARD_WIDTH / 3, 50, Image.SCALE_DEFAULT));
-			BufferedImage joinLocalGameImg = ImageIO.read(GameData.class.getResource("/img/buttonUnselected.png"));
-			joinLocalGameIcon = new ImageIcon(
-					joinLocalGameImg.getScaledInstance(GameData.BOARD_WIDTH / 3, 50, Image.SCALE_DEFAULT));
+			BufferedImage[] twoPlayerImg = { getImageFromFile("/img/buttons/unselected/multiplayerUnselected.png"),
+					getImageFromFile("/img/buttons/selected/multiplayerSelected.png") };
+			BufferedImage[] singlePlayerImg = { getImageFromFile("/img/buttons/unselected/singlePlayerUnselected.png"),
+					getImageFromFile("/img/buttons/selected/singlePlayerSelected.png") };
+			BufferedImage[] startLocalGameImg = { getImageFromFile("/img/buttons/unselected/startGameUnselected.png"),
+					getImageFromFile("/img/buttons/selected/startGameSelected.png") };
+			BufferedImage[] joinLocalGameImg = { getImageFromFile("/img/buttons/unselected/joinGameUnselected.png"),
+					getImageFromFile("/img/buttons/selected/joinGameSelected.png") };
+			twoPlayerIcon = new Icon[2];
+			singlePlayerIcon = new Icon[2];
+			startLocalGameIcon = new Icon[2];
+			joinLocalGameIcon = new Icon[2];
+			for (int i = 0; i < 2; i++) {
+				twoPlayerIcon[i] = new ImageIcon(
+						twoPlayerImg[i].getScaledInstance(GameData.BOARD_WIDTH / 2, 80, Image.SCALE_DEFAULT));
+				singlePlayerIcon[i] = new ImageIcon(
+						singlePlayerImg[i].getScaledInstance(GameData.BOARD_WIDTH / 2, 80, Image.SCALE_DEFAULT));
+				startLocalGameIcon[i] = new ImageIcon(
+						startLocalGameImg[i].getScaledInstance(GameData.BOARD_WIDTH / 2, 80, Image.SCALE_DEFAULT));
+				joinLocalGameIcon[i] = new ImageIcon(
+						joinLocalGameImg[i].getScaledInstance(GameData.BOARD_WIDTH / 2, 80, Image.SCALE_DEFAULT));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -105,23 +115,19 @@ public class GameData {
 		try {
 			knightIcon = new Icon[2];
 			for (int i = 0; i < knightIcon.length; i++) {
-				knightIcon[i] = new ImageIcon(knightSprite[i].getScaledInstance(width,
-						height, Image.SCALE_DEFAULT));
+				knightIcon[i] = new ImageIcon(knightSprite[i].getScaledInstance(width, height, Image.SCALE_DEFAULT));
 			}
 			bishopIcon = new Icon[2];
 			for (int i = 0; i < bishopIcon.length; i++) {
-				bishopIcon[i] = new ImageIcon(bishopSprite[i].getScaledInstance(width,
-						height, Image.SCALE_DEFAULT));
+				bishopIcon[i] = new ImageIcon(bishopSprite[i].getScaledInstance(width, height, Image.SCALE_DEFAULT));
 			}
 			rookIcon = new Icon[2];
 			for (int i = 0; i < rookIcon.length; i++) {
-				rookIcon[i] = new ImageIcon(rookSprite[i].getScaledInstance(width,
-						height, Image.SCALE_DEFAULT));
+				rookIcon[i] = new ImageIcon(rookSprite[i].getScaledInstance(width, height, Image.SCALE_DEFAULT));
 			}
 			queenIcon = new Icon[2];
 			for (int i = 0; i < queenIcon.length; i++) {
-				queenIcon[i] = new ImageIcon(queenSprite[i].getScaledInstance(width,
-						height, Image.SCALE_DEFAULT));
+				queenIcon[i] = new ImageIcon(queenSprite[i].getScaledInstance(width, height, Image.SCALE_DEFAULT));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -168,6 +174,15 @@ public class GameData {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static BufferedImage getImageFromFile(String path) {
+		try {
+			return ImageIO.read(GameData.class.getResource(path));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	static {
