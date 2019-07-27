@@ -31,8 +31,8 @@ public class OnlineGame {
 				inputStream = Client.getSocket().getInputStream();
 				ownPlayer = Players.PLAYER_2;
 			}
-			outputStream = new DataOutputStream(outputStream);
-			inputStream = new DataInputStream(inputStream);
+			this.outputStream = new ObjectOutputStream(outputStream);
+			this.inputStream = new ObjectInputStream(inputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

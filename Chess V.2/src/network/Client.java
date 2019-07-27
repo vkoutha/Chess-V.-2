@@ -33,14 +33,12 @@ public class Client {
 	private static void checkForDataAndConnectToServer() {
 		DatagramSocket datagramSocket = null;
 		try {
+			datagramSocket = new DatagramSocket(GameData.NETWORK_PORT);
 			while (true) {
-				datagramSocket = new DatagramSocket(GameData.NETWORK_PORT);
 				byte[] data = new byte[256];
 				DatagramPacket recievingPacket = new DatagramPacket(data, data.length);
-				System.out.println("looking for data");
 				datagramSocket.receive(recievingPacket);
-				System.out.println("Data recieved: " + new String(data).toString());
-				String recievedStr = new String(recievingPacket.getData());
+				String recievedStr = new String(recievingPacket.getData(), recievingPacket.getOffset(), recievingPacket.getLength());
 				if (gamePassword.equals(recievedStr)) {
 					socket = new Socket(recievingPacket.getAddress(), GameData.NETWORK_PORT);
 					break;

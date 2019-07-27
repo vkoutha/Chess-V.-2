@@ -2,13 +2,14 @@ package pieces;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import game.Game;
 import game.GameData;
 import game.GameData.Players;
 
-public abstract class Piece {
+public abstract class Piece implements Serializable{
 
 	protected int row, column;
 	private int deathSlot;

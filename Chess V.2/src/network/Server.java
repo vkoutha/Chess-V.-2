@@ -37,14 +37,14 @@ public class Server {
 		byte[] data = gamePassword.getBytes();
 		DatagramSocket socket = null;
 		try {
-			socket = new DatagramSocket();
+			socket = new DatagramSocket(GameData.NETWORK_PORT);
 			for (int i = 0; i < ips.size(); i++) {
-//				if (!ips.get(i).equals(Inet4Address.getLocalHost().getHostAddress())) {
+				if (!ips.get(i).equals(Inet4Address.getLocalHost().getHostAddress())) {
 					DatagramPacket sendingData = new DatagramPacket(data, data.length,
 							InetAddress.getByName(ips.get(i)), GameData.NETWORK_PORT);
 					System.out.println("Data sent to: " + ips.get(i));
 					socket.send(sendingData);
-			//	}
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -86,10 +86,10 @@ public class Server {
 		}
 		while (index != 254)
 			System.out.println(index);
-			;
+		;
 
 		try {
-			Thread.sleep(GameData.CONNECTION_TIMEOUT_MS + 500);
+			Thread.sleep(GameData.CONNECTION_TIMEOUT_MS);
 		} catch (Exception e) {
 
 		}
