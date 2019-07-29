@@ -48,180 +48,17 @@ public class Game implements ActionListener, MouseListener {
 	protected Renderer.Player1Panel player1Panel;
 	protected Renderer.Player2Panel player2Panel;
 	protected Renderer.BoardPanel boardPanel;
-	private Timer timer;
-	private Tile[][] tiles;
-	private Tile selectedTile;
-	private ArrayList<Piece> player1Pieces, deadPlayer1Pieces;
-	private ArrayList<Piece> player2Pieces, deadPlayer2Pieces;
+	protected Timer timer;
+	protected Tile[][] tiles;
+	protected Tile selectedTile;
+	protected ArrayList<Piece> player1Pieces, deadPlayer1Pieces;
+	protected ArrayList<Piece> player2Pieces, deadPlayer2Pieces;
 	protected OnlineGame onlineGame;
-	private GameStates gameState;
-	private Players playerTurn;
-	private boolean isOnlineGame;
+	protected GameStates gameState;
+	protected Players playerTurn;
+	protected boolean isOnlineGame;
 
-	private void initMenuFrame() {
-		JPanel container = new JPanel();
-		container.setLayout(new BoxLayout(container, BoxLayout.PAGE_AXIS));
-		JLabel logoLbl = new JLabel("Chess V.2");
-		logoLbl.setForeground(Color.BLACK);
-		logoLbl.setFont(new Font("Arial", Font.BOLD, 50));
-		logoLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-		JButton twoPlayerBtn = new JButton(GameData.twoPlayerIcon[0]);
-		twoPlayerBtn.setRolloverIcon(GameData.twoPlayerIcon[1]);
-		twoPlayerBtn.setFocusable(false);
-		twoPlayerBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				setGameState(GameStates.IN_GAME);
-			}
-		});
-		twoPlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-		GameData.removeBackground(twoPlayerBtn);
-		JButton singlePlayerBtn = new JButton(GameData.singlePlayerIcon[0]);
-		singlePlayerBtn.setRolloverIcon(GameData.singlePlayerIcon[1]);
-		singlePlayerBtn.setFocusable(false);
-		singlePlayerBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				setGameState(GameStates.IN_GAME);
-			}
-		});
-		singlePlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-		GameData.removeBackground(singlePlayerBtn);
-		JButton startLocalGameBtn = new JButton(GameData.startLocalGameIcon[0]);
-		startLocalGameBtn.setRolloverIcon(GameData.startLocalGameIcon[1]);
-		startLocalGameBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				setGameState(GameStates.SEARCHING);
-				Server.startOnlineGame();
-				onlineGame = new OnlineGame(true);
-				setGameState(GameStates.IN_GAME);
-			}
-		});
-		startLocalGameBtn.setFocusable(false);
-		startLocalGameBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-		GameData.removeBackground(startLocalGameBtn);
-		JButton joinLocalGameBtn = new JButton(GameData.joinLocalGameIcon[0]);
-		joinLocalGameBtn.setRolloverIcon(GameData.joinLocalGameIcon[1]);
-		joinLocalGameBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				setGameState(GameStates.SEARCHING);
-				Client.joinOnlineGame();
-				onlineGame = new OnlineGame(false);
-			}
-		});
-		joinLocalGameBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-		joinLocalGameBtn.setFocusable(false);
-		GameData.removeBackground(joinLocalGameBtn);
-		container.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
-		container.setPreferredSize(new Dimension(GameData.BOARD_WIDTH, GameData.BOARD_HEIGHT));
-		container.add(Box.createVerticalStrut(80));
-		container.add(logoLbl);
-		container.add(Box.createVerticalStrut(50));
-		container.add(twoPlayerBtn);
-		container.add(Box.createVerticalStrut(25));
-		container.add(singlePlayerBtn);
-		container.add(Box.createVerticalStrut(25));
-		container.add(startLocalGameBtn);
-		container.add(Box.createVerticalStrut(25));
-		container.add(joinLocalGameBtn);
-		frame.add(container);
-		frame.pack();
-		frame.setVisible(true);
-		frame.setLocationRelativeTo(null);
-	}
-	
-	private JButton getTwoPlayerButton() {
-		JButton button = new JButton(GameData.twoPlayerIcon[0]);
-		button.setRolloverIcon(GameData.twoPlayerIcon[1]);
-		button.setFocusable(false);
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				setGameState(GameStates.IN_GAME);
-			}
-		});
-		button.setAlignmentX(Component.CENTER_ALIGNMENT);
-		GameData.removeBackground(button);
-		return button;
-	}
-	
-	private void initSinglePlayerButton() {
-		
-	}
-	
-	private void initStartGameButton() {
-		
-	}
-	
-	private void initJoinGameButton() {
-		
-	}
-
-	private void initInGameFrame() {
-		frame.setLayout(new BorderLayout());
-		player1Panel = new Player1Panel();
-		player1Panel.setPreferredSize(new Dimension(GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT));
-		player1Panel.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
-		player2Panel = new Player2Panel();
-		player2Panel.setPreferredSize(new Dimension(GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT));
-		player2Panel.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
-		boardPanel = new BoardPanel();
-		boardPanel.setPreferredSize(new Dimension(GameData.BOARD_WIDTH, GameData.BOARD_HEIGHT));
-		renderer = () -> {
-			player1Panel.repaint();
-			player2Panel.repaint();
-			boardPanel.repaint();
-		};
-		frame.getContentPane().addMouseListener(this);
-		frame.add(player1Panel, BorderLayout.LINE_START);
-		frame.add(boardPanel, BorderLayout.CENTER);
-		frame.add(player2Panel, BorderLayout.LINE_END);
-		frame.setVisible(true);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		player1Panel.setLayout(null);
-		player2Panel.setLayout(null);
-		player1TimerLabel = new JLabel("Time remaining: ##:###");
-		player1TimerLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		player1TimerLabel.setBounds(
-				(GameData.PLAYER_PANEL_WIDTH / 2) - ((int) player1TimerLabel.getPreferredSize().getWidth() / 2), 50,
-				(int) player1TimerLabel.getPreferredSize().getWidth(),
-				(int) player1TimerLabel.getPreferredSize().getHeight());
-		player1Panel.add(player1TimerLabel);
-		player2TimerLabel = new JLabel("Time remaining: ##:###");
-		player2TimerLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		player2TimerLabel.setBounds(
-				(GameData.PLAYER_PANEL_WIDTH / 2) - ((int) player2TimerLabel.getPreferredSize().getWidth() / 2), 50,
-				(int) player2TimerLabel.getPreferredSize().getWidth(),
-				(int) player2TimerLabel.getPreferredSize().getHeight());
-		player2Panel.add(player2TimerLabel);
-	}
-
-	private void initSearchingFrame() {
-		JPanel container = new JPanel();
-		container.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
-		container.setPreferredSize(new Dimension(GameData.BOARD_WIDTH, GameData.BOARD_HEIGHT));
-		container.setLayout(null);
-		JLabel findingOpponentsLbl = new JLabel("Finding Opponent...");
-		findingOpponentsLbl.setFont(new Font("Arial", Font.BOLD, 70));
-		findingOpponentsLbl.setForeground(Color.BLACK);
-		findingOpponentsLbl.setBounds(
-				(int) ((container.getPreferredSize().getWidth() / 2)
-						- (findingOpponentsLbl.getPreferredSize().getWidth() / 2)),
-				(int) ((container.getPreferredSize().getHeight() / 2)
-						- (findingOpponentsLbl.getPreferredSize().getHeight())),
-				(int) findingOpponentsLbl.getPreferredSize().getWidth(),
-				(int) findingOpponentsLbl.getPreferredSize().getHeight());
-		container.add(findingOpponentsLbl);
-		frame.add(container);
-		frame.pack();
+	private Game() {
 	}
 
 	public void setGameState(GameStates state) {
@@ -230,21 +67,19 @@ public class Game implements ActionListener, MouseListener {
 		switch (state) {
 		case MENU:
 			FrameManager.MainMenuFrame.initMenuFrame();
-		//	initMenuFrame();
 			break;
-		case IN_GAME: 
+		case IN_GAME:
 			FrameManager.GameFrame.initGameFrame();
-		//	initInGameFrame();
 			initGame();
 			break;
 		case SEARCHING:
-			initSearchingFrame();
+			FrameManager.SearchingFrame.initSearchingFrame();
 			break;
 		}
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
 	}
-	
+
 	private void resetFrame() {
 		if (frame != null) {
 			frame.dispose();
@@ -305,55 +140,13 @@ public class Game implements ActionListener, MouseListener {
 	public void render(Graphics g, Panels panelType) {
 		switch (panelType) {
 		case BOARD:
-			switch (gameState) {
-			case MENU:
-				break;
-			case SEARCHING:
-				break;
-			case IN_GAME:
-				for (int row = 0; row < tiles.length; row++) {
-					for (int col = 0; col < tiles[row].length; col++) {
-						tiles[row][col].render(g);
-					}
-				}
-				player1Pieces.forEach((piece) -> piece.render(g));
-				player2Pieces.forEach((piece) -> piece.render(g));
-				break;
-			}
+			FrameManager.GameFrame.renderBoard(g);
 			break;
 		case PLAYER_1:
-			switch (gameState) {
-			case MENU:
-				break;
-			case SEARCHING:
-				break;
-			case IN_GAME:
-				int p1Minutes = GameData.PLAYER_1_TIMER_SECONDS / 60;
-				int p1Seconds = GameData.PLAYER_1_TIMER_SECONDS % 60;
-				g.setColor(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
-				g.fillRect(0, 0, GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT);
-				deadPlayer1Pieces.forEach((piece) -> piece.render(g));
-				player1TimerLabel
-						.setText("Time remaining: " + p1Minutes + ":" + (p1Seconds < 10 ? "0" + p1Seconds : p1Seconds));
-				break;
-			}
+			FrameManager.GameFrame.renderPlayer1Panel(g);
 			break;
 		case PLAYER_2:
-			switch (gameState) {
-			case MENU:
-				break;
-			case SEARCHING:
-				break;
-			case IN_GAME:
-				int p2Minutes = GameData.PLAYER_2_TIMER_SECONDS / 60;
-				int p2Seconds = GameData.PLAYER_2_TIMER_SECONDS % 60;
-				g.setColor(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
-				g.fillRect(0, 0, GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT);
-				deadPlayer2Pieces.forEach((piece) -> piece.render(g));
-				player2TimerLabel
-						.setText("Time remaining: " + p2Minutes + ":" + (p2Seconds < 10 ? "0" + p2Seconds : p2Seconds));
-				break;
-			}
+			FrameManager.GameFrame.renderPlayer2Panel(g);
 			break;
 		}
 	}
@@ -405,11 +198,20 @@ public class Game implements ActionListener, MouseListener {
 
 	private void endPlayerTurn() {
 		playPieceSoundEffect();
+		switchPlayerTurns();
+		checkIfKingInCheck();
+		checkIfKingInCheckmate();
+	}
+	
+	private void switchPlayerTurns() {
 		if (playerTurn == Players.PLAYER_1) {
 			playerTurn = Players.PLAYER_2;
 		} else if (playerTurn == Players.PLAYER_2) {
 			playerTurn = Players.PLAYER_1;
 		}
+	}
+	
+	private void checkIfKingInCheck() {
 		King king = King.getKing(playerTurn);
 		if (king.isInCheck()) {
 			tiles[king.getRow()][king.getColumn()].setAsCheckedTile(true);
@@ -419,6 +221,10 @@ public class Game implements ActionListener, MouseListener {
 				tiles[piecesThatChecked.get(i).getRow()][piecesThatChecked.get(i).getColumn()].setAsCheckedTile(true);
 			}
 		}
+	}
+	
+	private void checkIfKingInCheckmate() {
+		King king = King.getKing(playerTurn);
 		if (king.isCheckmated()) {
 			if (playerTurn == Players.PLAYER_1) {
 				setWinner(Players.PLAYER_2);
@@ -429,7 +235,7 @@ public class Game implements ActionListener, MouseListener {
 			setWinner(null);
 		}
 	}
-	
+
 	public void initPromotionMenu(Pawn pawn) {
 		frame.getContentPane().removeMouseListener(this);
 		SwingUtilities.invokeLater(new Runnable() {
@@ -470,11 +276,11 @@ public class Game implements ActionListener, MouseListener {
 			timer.start();
 		}
 	}
-	
+
 	public boolean isOnlineGame() {
 		return isOnlineGame;
 	}
-	
+
 	public OnlineGame getOnlineGame() {
 		return onlineGame;
 	}
@@ -513,7 +319,9 @@ public class Game implements ActionListener, MouseListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		renderer.repaint();
+		if (gameState == GameStates.IN_GAME) {
+			renderer.repaint();
+		}
 		if (isOnlineGame && playerTurn != onlineGame.getOwnPlayer()) {
 			int[][] move = onlineGame.getOpponentMove();
 			tiles[move[0][0]][move[0][1]].getPiece().move(move[1][0], move[1][1]);
@@ -566,7 +374,7 @@ public class Game implements ActionListener, MouseListener {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	private static void addShutdownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override

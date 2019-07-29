@@ -5,13 +5,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -23,7 +23,7 @@ import network.Client;
 import network.OnlineGame;
 import network.Server;
 
-public class FrameManager extends Game {
+public class FrameManager {
 
 	private FrameManager() {
 
@@ -137,13 +137,24 @@ public class FrameManager extends Game {
 	public static class GameFrame {
 		public static void initGameFrame() {
 			Game.game.frame.setLayout(new BorderLayout());
+			initGamePanels();
+			initPlayerTimers();
+			Game.game.frame.setVisible(true);
+			Game.game.frame.pack();
+			Game.game.frame.setLocationRelativeTo(null);
+			Game.game.frame.getContentPane().addMouseListener(Game.game);
+		}
+		
+		private static void initGamePanels() {
 			Game.game.player1Panel = new Player1Panel();
 			Game.game.player1Panel
 					.setPreferredSize(new Dimension(GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT));
+			Game.game.player1Panel.setLayout(null);
 			Game.game.player1Panel.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
 			Game.game.player2Panel = new Player2Panel();
 			Game.game.player2Panel
 					.setPreferredSize(new Dimension(GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT));
+			Game.game.player2Panel.setLayout(null);
 			Game.game.player2Panel.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
 			Game.game.boardPanel = new BoardPanel();
 			Game.game.boardPanel.setPreferredSize(new Dimension(GameData.BOARD_WIDTH, GameData.BOARD_HEIGHT));
@@ -152,15 +163,12 @@ public class FrameManager extends Game {
 				Game.game.player2Panel.repaint();
 				Game.game.boardPanel.repaint();
 			};
-			Game.game.frame.getContentPane().addMouseListener(Game.game);
 			Game.game.frame.add(Game.game.player1Panel, BorderLayout.LINE_START);
 			Game.game.frame.add(Game.game.boardPanel, BorderLayout.CENTER);
 			Game.game.frame.add(Game.game.player2Panel, BorderLayout.LINE_END);
-			Game.game.frame.setVisible(true);
-			Game.game.frame.pack();
-			Game.game.frame.setLocationRelativeTo(null);
-			Game.game.player1Panel.setLayout(null);
-			Game.game.player2Panel.setLayout(null);
+		}
+		
+		private static void initPlayerTimers() {
 			Game.game.player1TimerLabel = new JLabel("Time remaining: ##:###");
 			Game.game.player1TimerLabel.setFont(new Font("Arial", Font.BOLD, 14));
 			Game.game.player1TimerLabel.setBounds(
@@ -177,6 +185,58 @@ public class FrameManager extends Game {
 					50, (int) Game.game.player2TimerLabel.getPreferredSize().getWidth(),
 					(int) Game.game.player2TimerLabel.getPreferredSize().getHeight());
 			Game.game.player2Panel.add(Game.game.player2TimerLabel);
+		}
+
+		public static void renderBoard(Graphics g) {
+			for (int row = 0; row < Game.game.tiles.length; row++) {
+				for (int col = 0; col < Game.game.tiles[row].length; col++) {
+					Game.game.tiles[row][col].render(g);
+				}
+			}
+			Game.game.player1Pieces.forEach((piece) -> piece.render(g));
+			Game.game.player2Pieces.forEach((piece) -> piece.render(g));
+		}
+
+		public static void renderPlayer1Panel(Graphics g) {
+			int p1Minutes = GameData.PLAYER_1_TIMER_SECONDS / 60;
+			int p1Seconds = GameData.PLAYER_1_TIMER_SECONDS % 60;
+			g.setColor(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
+			g.fillRect(0, 0, GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT);
+			Game.game.deadPlayer1Pieces.forEach((piece) -> piece.render(g));
+			Game.game.player1TimerLabel
+					.setText("Time remaining: " + p1Minutes + ":" + (p1Seconds < 10 ? "0" + p1Seconds : p1Seconds));
+		}
+
+		public static void renderPlayer2Panel(Graphics g) {
+			int p2Minutes = GameData.PLAYER_2_TIMER_SECONDS / 60;
+			int p2Seconds = GameData.PLAYER_2_TIMER_SECONDS % 60;
+			g.setColor(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
+			g.fillRect(0, 0, GameData.PLAYER_PANEL_WIDTH, GameData.PLAYER_PANEL_HEIGHT);
+			Game.game.deadPlayer2Pieces.forEach((piece) -> piece.render(g));
+			Game.game.player2TimerLabel
+					.setText("Time remaining: " + p2Minutes + ":" + (p2Seconds < 10 ? "0" + p2Seconds : p2Seconds));
+		}
+	}
+
+	public static class SearchingFrame {
+		public static void initSearchingFrame() {
+			JPanel container = new JPanel();
+			container.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
+			container.setPreferredSize(new Dimension(GameData.BOARD_WIDTH, GameData.BOARD_HEIGHT));
+			container.setLayout(null);
+			JLabel findingOpponentsLbl = new JLabel("Finding Opponent...");
+			findingOpponentsLbl.setFont(new Font("Arial", Font.BOLD, 70));
+			findingOpponentsLbl.setForeground(Color.BLACK);
+			findingOpponentsLbl.setBounds(
+					(int) ((container.getPreferredSize().getWidth() / 2)
+							- (findingOpponentsLbl.getPreferredSize().getWidth() / 2)),
+					(int) ((container.getPreferredSize().getHeight() / 2)
+							- (findingOpponentsLbl.getPreferredSize().getHeight())),
+					(int) findingOpponentsLbl.getPreferredSize().getWidth(),
+					(int) findingOpponentsLbl.getPreferredSize().getHeight());
+			container.add(findingOpponentsLbl);
+			Game.game.frame.add(container);
+			Game.game.frame.pack();
 		}
 	}
 
