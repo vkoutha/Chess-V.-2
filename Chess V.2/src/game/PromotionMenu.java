@@ -31,7 +31,6 @@ public class PromotionMenu extends JFrame {
 	public PromotionMenu(Pawn pawn) {
 		super("Promotion Menu");
 		this.pawn = pawn;
-		
 		iconIndexToUse = (pawn.getPlayer() == Players.PLAYER_1 ? 0 : 1);
 		initFrame();
 	}

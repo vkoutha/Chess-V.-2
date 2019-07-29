@@ -42,25 +42,21 @@ import pieces.Rook;
 public class Game implements ActionListener, MouseListener {
 
 	public static Game game;
-	private JFrame frame, promotionMenu;
-	private JLabel player1TimerLabel, player2TimerLabel;
-	private Renderer renderer;
-	private Renderer.Player1Panel player1Panel;
-	private Renderer.Player2Panel player2Panel;
-	private Renderer.BoardPanel boardPanel;
+	protected JFrame frame, promotionMenu;
+	protected JLabel player1TimerLabel, player2TimerLabel;
+	protected Renderer renderer;
+	protected Renderer.Player1Panel player1Panel;
+	protected Renderer.Player2Panel player2Panel;
+	protected Renderer.BoardPanel boardPanel;
 	private Timer timer;
 	private Tile[][] tiles;
 	private Tile selectedTile;
 	private ArrayList<Piece> player1Pieces, deadPlayer1Pieces;
 	private ArrayList<Piece> player2Pieces, deadPlayer2Pieces;
-	private OnlineGame onlineGame;
+	protected OnlineGame onlineGame;
 	private GameStates gameState;
 	private Players playerTurn;
 	private boolean isOnlineGame;
-
-	public Game() {
-		setGameState(GameStates.MENU);
-	}
 
 	private void initMenuFrame() {
 		JPanel container = new JPanel();
@@ -140,8 +136,20 @@ public class Game implements ActionListener, MouseListener {
 		frame.setLocationRelativeTo(null);
 	}
 	
-	private void initTwoPlayerButton(JButton button) {
-		
+	private JButton getTwoPlayerButton() {
+		JButton button = new JButton(GameData.twoPlayerIcon[0]);
+		button.setRolloverIcon(GameData.twoPlayerIcon[1]);
+		button.setFocusable(false);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				setGameState(GameStates.IN_GAME);
+			}
+		});
+		button.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GameData.removeBackground(button);
+		return button;
 	}
 	
 	private void initSinglePlayerButton() {
@@ -218,16 +226,15 @@ public class Game implements ActionListener, MouseListener {
 
 	public void setGameState(GameStates state) {
 		gameState = state;
-		if (frame != null) {
-			frame.dispose();
-		}
-		frame = new JFrame("Chess Revamped!");
+		resetFrame();
 		switch (state) {
 		case MENU:
-			initMenuFrame();
+			FrameManager.MainMenuFrame.initMenuFrame();
+		//	initMenuFrame();
 			break;
-		case IN_GAME:
-			initInGameFrame();
+		case IN_GAME: 
+			FrameManager.GameFrame.initGameFrame();
+		//	initInGameFrame();
 			initGame();
 			break;
 		case SEARCHING:
@@ -236,6 +243,13 @@ public class Game implements ActionListener, MouseListener {
 		}
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
+	}
+	
+	private void resetFrame() {
+		if (frame != null) {
+			frame.dispose();
+		}
+		frame = new JFrame("Chess Revamped!");
 	}
 
 	private void initGame() {
@@ -552,16 +566,8 @@ public class Game implements ActionListener, MouseListener {
 		// TODO Auto-generated method stub
 
 	}
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				game = new Game();
-			}
-		});
+	
+	private static void addShutdownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -571,6 +577,19 @@ public class Game implements ActionListener, MouseListener {
 				}
 			}
 		}));
+	}
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				game = new Game();
+				game.setGameState(GameStates.MENU);
+			}
+		});
+		addShutdownHook();
 	}
 
 }

@@ -59,12 +59,11 @@ public class OnlineGame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	public int[][] getOpponentMove() {
-		int[] initial = {};
-		int[] destination = {};
+		int[] initial = null;
+		int[] destination = null;
 		try {
 			initial = new int[] { inputStream.readInt(), inputStream.readInt() };
 			destination = new int[] { inputStream.readInt(), inputStream.readInt() };
