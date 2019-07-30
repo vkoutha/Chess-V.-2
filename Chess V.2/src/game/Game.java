@@ -340,11 +340,17 @@ public class Game implements ActionListener, MouseListener {
 			break;
 		case PAWN_PROMOTION:
 			Piece[] pawnPromotion = onlineGame.getPawnPromotion();
+			Pawn pawnToBePromoted = (Pawn) pawnPromotion[0];
+			Piece pieceToBePromotedTo = pawnPromotion[1];
 			onlineGame.ignoreDataHeader();
 			processIncomingPieceMove();
-			tiles[pawnPromotion[1].getRow()][pawnPromotion[1].getColumn()].getPiece().move(pawnPromotion[0].getRow(),
-					pawnPromotion[0].getColumn());
-			tiles[pawnPromotion[0].getRow()][pawnPromotion[0].getColumn()].getPiece().kill();
+			tiles[pawnToBePromoted.getRow()][pawnToBePromoted.getColumn()].getPiece().kill();
+			if (pieceToBePromotedTo.getPlayer() == Players.PLAYER_1) {
+				player1Pieces.add(pieceToBePromotedTo);
+			} else {
+				player2Pieces.add(pieceToBePromotedTo);
+			}
+			pieceToBePromotedTo.move(pawnToBePromoted.getRow(), pawnToBePromoted.getColumn());
 			endPlayerTurn();
 			break;
 		}
