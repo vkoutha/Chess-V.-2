@@ -202,7 +202,7 @@ public class Game implements ActionListener, MouseListener {
 		checkIfKingInCheck();
 		checkIfKingInCheckmate();
 	}
-	
+
 	private void switchPlayerTurns() {
 		if (playerTurn == Players.PLAYER_1) {
 			playerTurn = Players.PLAYER_2;
@@ -210,7 +210,7 @@ public class Game implements ActionListener, MouseListener {
 			playerTurn = Players.PLAYER_1;
 		}
 	}
-	
+
 	private void checkIfKingInCheck() {
 		King king = King.getKing(playerTurn);
 		if (king.isInCheck()) {
@@ -222,7 +222,7 @@ public class Game implements ActionListener, MouseListener {
 			}
 		}
 	}
-	
+
 	private void checkIfKingInCheckmate() {
 		King king = King.getKing(playerTurn);
 		if (king.isCheckmated()) {
@@ -323,15 +323,36 @@ public class Game implements ActionListener, MouseListener {
 			renderer.repaint();
 		}
 		if (isOnlineGame && playerTurn != onlineGame.getOwnPlayer()) {
-			int[][] move = onlineGame.getOpponentMove();
-			tiles[move[0][0]][move[0][1]].getPiece().move(move[1][0], move[1][1]);
-			endPlayerTurn();
+			checkForIncomingData();
 		}
 		if (playerTurn == Players.PLAYER_1) {
 			GameData.PLAYER_1_TIMER_SECONDS--;
 		} else {
 			GameData.PLAYER_2_TIMER_SECONDS--;
 		}
+	}
+
+	private void checkForIncomingData() {
+		switch (onlineGame.getIncomingDataHeader()) {
+		case PIECE_MOVE:
+			processIncomingPieceMove();
+			endPlayerTurn();
+			break;
+		case PAWN_PROMOTION:
+			Piece[] pawnPromotion = onlineGame.getPawnPromotion();
+			onlineGame.ignoreDataHeader();
+			processIncomingPieceMove();
+			tiles[pawnPromotion[1].getRow()][pawnPromotion[1].getColumn()].getPiece().move(pawnPromotion[0].getRow(),
+					pawnPromotion[0].getColumn());
+			tiles[pawnPromotion[0].getRow()][pawnPromotion[0].getColumn()].getPiece().kill();
+			endPlayerTurn();
+			break;
+		}
+	}
+
+	private void processIncomingPieceMove() {
+		int[][] move = onlineGame.getOpponentMove();
+		tiles[move[0][0]][move[0][1]].getPiece().move(move[1][0], move[1][1]);
 	}
 
 	@Override

@@ -68,6 +68,10 @@ public class GameData {
 	public enum Players {
 		PLAYER_1, PLAYER_2
 	}
+	
+	public enum DataTransferHeaders{
+		PIECE_MOVE, PAWN_PROMOTION
+	}
 
 	public static void removeBackground(JButton button) {
 		button.setContentAreaFilled(false);

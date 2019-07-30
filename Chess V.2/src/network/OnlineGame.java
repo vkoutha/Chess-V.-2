@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
+import game.GameData.DataTransferHeaders;
 import game.GameData.Players;
 import pieces.Pawn;
 import pieces.Piece;
@@ -40,6 +41,7 @@ public class OnlineGame {
 
 	public void sendMove(int[] initial, int[] destination) {
 		try {
+			outputStream.writeUTF(DataTransferHeaders.PIECE_MOVE.name());
 			outputStream.writeInt(initial[0]);
 			outputStream.writeInt(initial[1]);
 			outputStream.writeInt(destination[0]);
@@ -52,6 +54,7 @@ public class OnlineGame {
 
 	public void sendPawnPromotion(Pawn pawn, Piece newPiece) {
 		try {
+			outputStream.writeUTF(DataTransferHeaders.PAWN_PROMOTION.name());
 			outputStream.writeObject(pawn);
 			outputStream.writeObject(newPiece);
 			outputStream.flush();
@@ -59,6 +62,23 @@ public class OnlineGame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void ignoreDataHeader() {
+		try {
+			inputStream.readUTF();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public DataTransferHeaders getIncomingDataHeader() {
+		try {
+			return DataTransferHeaders.valueOf(inputStream.readUTF());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public int[][] getOpponentMove() {
@@ -74,10 +94,10 @@ public class OnlineGame {
 		return opponentMove;
 	}
 
-	public Piece[] recievePawnPromotion() {
+	public Piece[] getPawnPromotion() {
 		Piece[] pieces = null;
 		try {
-			pieces = new Piece[] {(Piece) inputStream.readObject(), (Piece) inputStream.readObject()};
+			pieces = new Piece[] { (Piece) inputStream.readObject(), (Piece) inputStream.readObject() };
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
