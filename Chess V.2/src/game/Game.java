@@ -175,11 +175,11 @@ public class Game implements ActionListener, MouseListener {
 				// If the user selects a tile that is a valid move
 			} else if (selectedTile.getPiece().isValidMove(sRow, sCol)) {
 				displayPiecesMoves(selectedTile.getPiece(), false);
+				selectedTile.getPiece().move(sRow, sCol);
+				selectedTile = null;
 				if (isOnlineGame) {
 					onlineGame.sendMove(selectedTile.getPiece().getBoardLocation(), new int[] { sRow, sCol });
 				}
-				selectedTile.getPiece().move(sRow, sCol);
-				selectedTile = null;
 				endPlayerTurn();
 			}
 		}
@@ -342,13 +342,14 @@ public class Game implements ActionListener, MouseListener {
 			Piece[] pawnPromotion = onlineGame.getPawnPromotion();
 			Pawn pawnToBePromoted = (Pawn) pawnPromotion[0];
 			Piece pieceToBePromotedTo = pawnPromotion[1];
+			onlineGame.ignoreDataHeader();
+			processIncomingPieceMove();
 			tiles[pawnToBePromoted.getRow()][pawnToBePromoted.getColumn()].getPiece().kill();
 			if (pieceToBePromotedTo.getPlayer() == Players.PLAYER_1) {
 				player1Pieces.add(pieceToBePromotedTo);
 			} else {
 				player2Pieces.add(pieceToBePromotedTo);
 			}
-			pieceToBePromotedTo.move(pawnToBePromoted.getRow(), pawnToBePromoted.getColumn());
 			endPlayerTurn();
 			break;
 		}

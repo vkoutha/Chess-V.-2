@@ -109,8 +109,8 @@ public class PromotionMenu extends JFrame {
 	
 	private void close(Piece pieceToAdd) {
 		ArrayList<Piece> playerPieces = (pawn.getPlayer() == Players.PLAYER_1 ? Game.game.getPlayer1Pieces() : Game.game.getPlayer2Pieces());
-		playerPieces.add(pieceToAdd);
 		playerPieces.remove(pawn);
+		playerPieces.add(pieceToAdd);
 		if(Game.game.isOnlineGame()) {
 			Game.game.getOnlineGame().sendPawnPromotion(pawn, pieceToAdd);
 		}
