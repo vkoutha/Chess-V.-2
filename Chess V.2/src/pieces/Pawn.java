@@ -56,6 +56,7 @@ public class Pawn extends Piece {
 	}
 
 	public void move(int row, int column) {
+		int[] prevLocation = {this.row, this.column};
 		super.move(row, column);
 		moveCount++;
 		if (row == (player == Players.PLAYER_1 ? 0 : 7)) {
@@ -63,7 +64,9 @@ public class Pawn extends Piece {
 				Game.game.initPromotionMenu(this);
 			} else {
 				if(player == Game.game.getOnlineGame().getOwnPlayer()) {
-					Game.game.initPromotionMenu(this);
+					Game.game.setInPromotionMenu(true);
+					System.out.println("GOING TO PROMOTION MENU!!!");
+					Game.game.initPromotionMenu(this, prevLocation);
 				}
 			}
 		}

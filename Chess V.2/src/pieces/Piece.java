@@ -11,11 +11,15 @@ import game.GameData.Players;
 
 public abstract class Piece implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected int row, column;
 	private int deathSlot;
 	private boolean isDead;
 	protected Players player;
-	protected BufferedImage spriteToUse;
+	protected transient BufferedImage spriteToUse;
 
 	public Piece(int row, int column, Players player) {
 		this.row = row;
@@ -118,7 +122,7 @@ public abstract class Piece implements Serializable{
 		return player;
 	}
 
-	private void setSprite() {
+	public void setSprite() {
 		if (this instanceof Pawn) {
 			spriteToUse = player == Players.PLAYER_1 ? GameData.pawnSprite[0] : GameData.pawnSprite[1];
 		} else if (this instanceof Knight) {

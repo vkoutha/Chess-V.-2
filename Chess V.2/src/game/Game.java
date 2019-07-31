@@ -42,7 +42,7 @@ import pieces.Rook;
 public class Game implements ActionListener, MouseListener {
 
 	public static Game game;
-	protected JFrame frame, promotionMenu;
+	public JFrame frame, promotionMenu;
 	protected JLabel player1TimerLabel, player2TimerLabel;
 	protected Renderer renderer;
 	protected Renderer.Player1Panel player1Panel;
@@ -56,7 +56,7 @@ public class Game implements ActionListener, MouseListener {
 	protected OnlineGame onlineGame;
 	protected GameStates gameState;
 	protected Players playerTurn;
-	protected boolean isOnlineGame;
+	protected boolean inPromotionMenu, isOnlineGame;
 
 	private Game() {
 	}
@@ -175,12 +175,17 @@ public class Game implements ActionListener, MouseListener {
 				// If the user selects a tile that is a valid move
 			} else if (selectedTile.getPiece().isValidMove(sRow, sCol)) {
 				displayPiecesMoves(selectedTile.getPiece(), false);
+				int[] prevPieceLocation = selectedTile.getPiece().getBoardLocation();
 				selectedTile.getPiece().move(sRow, sCol);
 				selectedTile = null;
 				if (isOnlineGame) {
-					onlineGame.sendMove(selectedTile.getPiece().getBoardLocation(), new int[] { sRow, sCol });
+					if (!inPromotionMenu) {
+						onlineGame.sendMove(prevPieceLocation, new int[] { sRow, sCol });
+					}
 				}
-				endPlayerTurn();
+				if (!inPromotionMenu) {
+					endPlayerTurn();
+				}
 			}
 		}
 	}
@@ -196,7 +201,7 @@ public class Game implements ActionListener, MouseListener {
 		}
 	}
 
-	private void endPlayerTurn() {
+	public void endPlayerTurn() {
 		playPieceSoundEffect();
 		switchPlayerTurns();
 		checkIfKingInCheck();
@@ -247,6 +252,17 @@ public class Game implements ActionListener, MouseListener {
 		});
 	}
 
+	public void initPromotionMenu(Pawn pawn, int[] prevLocation) {
+		frame.getContentPane().removeMouseListener(this);
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				promotionMenu = new PromotionMenu(pawn, prevLocation);
+			}
+		});
+	}
+
 	private void playPieceSoundEffect() {
 		try {
 			GameData.resetSoundStreams();
@@ -267,6 +283,10 @@ public class Game implements ActionListener, MouseListener {
 		}
 	}
 
+	public void setInPromotionMenu(boolean inPromotionMenu) {
+		this.inPromotionMenu = inPromotionMenu;
+	}
+
 	public void setAsOnlineGame(boolean isOnlineGame) {
 		this.isOnlineGame = isOnlineGame;
 	}
@@ -275,6 +295,10 @@ public class Game implements ActionListener, MouseListener {
 		if (!timer.isRunning()) {
 			timer.start();
 		}
+	}
+
+	public boolean inPromotionMenu() {
+		return inPromotionMenu;
 	}
 
 	public boolean isOnlineGame() {
@@ -336,6 +360,7 @@ public class Game implements ActionListener, MouseListener {
 		switch (onlineGame.getIncomingDataHeader()) {
 		case PIECE_MOVE:
 			processIncomingPieceMove();
+			Tile.resetCheckedTiles();
 			endPlayerTurn();
 			break;
 		case PAWN_PROMOTION:
@@ -345,6 +370,7 @@ public class Game implements ActionListener, MouseListener {
 			onlineGame.ignoreDataHeader();
 			processIncomingPieceMove();
 			tiles[pawnToBePromoted.getRow()][pawnToBePromoted.getColumn()].getPiece().kill();
+			pieceToBePromotedTo.setSprite();
 			if (pieceToBePromotedTo.getPlayer() == Players.PLAYER_1) {
 				player1Pieces.add(pieceToBePromotedTo);
 			} else {

@@ -27,10 +27,19 @@ public class PromotionMenu extends JFrame {
 	private JPanel container;
 	private JButton knightButton, bishopButton, rookButton, queenButton;
 	private int iconIndexToUse;
+	private int[] prevLocation;
 
 	public PromotionMenu(Pawn pawn) {
 		super("Promotion Menu");
 		this.pawn = pawn;
+		iconIndexToUse = (pawn.getPlayer() == Players.PLAYER_1 ? 0 : 1);
+		initFrame();
+	}
+	
+	public PromotionMenu(Pawn pawn, int[] prevLocation) {
+		super("Promotion Menu");
+		this.pawn = pawn;
+		this.prevLocation = prevLocation;
 		iconIndexToUse = (pawn.getPlayer() == Players.PLAYER_1 ? 0 : 1);
 		initFrame();
 	}
@@ -102,6 +111,7 @@ public class PromotionMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				pieceToAdd = new Queen(pawn.getRow(), pawn.getColumn(), pawn.getPlayer());
+				System.out.println("JUST HIT QUEEN BUTTON");
 				close(pieceToAdd);
 			}
 		});
@@ -111,10 +121,14 @@ public class PromotionMenu extends JFrame {
 		ArrayList<Piece> playerPieces = (pawn.getPlayer() == Players.PLAYER_1 ? Game.game.getPlayer1Pieces() : Game.game.getPlayer2Pieces());
 		playerPieces.remove(pawn);
 		playerPieces.add(pieceToAdd);
+		pieceToAdd.setSprite();
 		if(Game.game.isOnlineGame()) {
 			Game.game.getOnlineGame().sendPawnPromotion(pawn, pieceToAdd);
+			Game.game.onlineGame.sendMove(prevLocation, pawn.getBoardLocation());
+			Game.game.endPlayerTurn();
 		}
 		Game.game.getFrame().getContentPane().addMouseListener(Game.game);
+		Game.game.setInPromotionMenu(false);
 		dispose();
 	}
 

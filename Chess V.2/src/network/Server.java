@@ -6,6 +6,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -23,7 +24,7 @@ public class Server {
 	public static void startOnlineGame() {
 		gamePassword = JOptionPane.showInputDialog(null,
 				"Enter game password for a private game, no password for a public game");
-		sendDataToAllIPs();
+		broadcastGamePassword();
 		startServer();
 		System.out.println("SERVER STARTED");
 		Game.game.setGameState(GameStates.IN_GAME);
@@ -32,80 +33,44 @@ public class Server {
 		Game.game.startTimer();
 	}
 
-	private static void sendDataToAllIPs() {
-		ArrayList<String> ips = getNetworkIPs();
-		byte[] data = gamePassword.getBytes();
+	private static void broadcastGamePassword() {
 		DatagramSocket socket = null;
 		try {
 			socket = new DatagramSocket(GameData.NETWORK_PORT);
-			for (int i = 0; i < ips.size(); i++) {
-				if (!ips.get(i).equals(Inet4Address.getLocalHost().getHostAddress())) {
-					DatagramPacket sendingData = new DatagramPacket(data, data.length,
-							InetAddress.getByName(ips.get(i)), GameData.NETWORK_PORT);
-					System.out.println("Data sent to: " + ips.get(i));
-					socket.send(sendingData);
-				}
-			}
+			DatagramPacket sendingData = new DatagramPacket(gamePassword.getBytes(), gamePassword.getBytes().length,
+					InetAddress.getByName(getBroadcastIP()), GameData.NETWORK_PORT);
+			socket.send(sendingData);
+			System.out.println("Data sent to " + getBroadcastIP());
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
+		}finally {
 			socket.close();
 		}
-		System.out.println("Data sent");
-	}
-
-	private static ArrayList<String> getNetworkIPs() {
-		ArrayList<String> reachableIPs = new ArrayList<String>();
-		final byte[] ip;
-		try {
-			ip = InetAddress.getLocalHost().getAddress();
-		} catch (Exception e) {
-			return reachableIPs;
-		}
-		int index = 0;
-		for (int i = 1; i <= 254; i++) {
-			final int j = i;
-			index = i;
-			new Thread(new Runnable() {
-				public void run() {
-					try {
-						ip[3] = (byte) j;
-						InetAddress address = InetAddress.getByAddress(ip);
-						String output = address.toString().substring(1);
-						if (address.isReachable(GameData.CONNECTION_TIMEOUT_MS)) {
-							System.out
-									.println(output + " with hostname " + InetAddress.getByName(output).getHostName());
-							reachableIPs.add(output);
-						} else {
-						}
-					} catch (Exception e) {
-
-					}
-				}
-			}).start();
-		}
-		while (index != 254)
-			System.out.println(index);
-		;
-
-		try {
-			Thread.sleep(GameData.CONNECTION_TIMEOUT_MS);
-		} catch (Exception e) {
-
-		}
-		System.out.println("Finished");
-		return reachableIPs;
 	}
 
 	private static void startServer() {
 		try {
 			serverSocket = new ServerSocket(GameData.NETWORK_PORT);
-			System.out.println("WAITING FOR CLIENT TO CONNECT");
 			clientSocket = serverSocket.accept();
+			System.out.println("WAITING FOR CLIENT TO CONNECT");
 			System.out.println("Server started");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static String getBroadcastIP() {
+		String broadcastIP = "";
+		try {
+			byte[] ipBytes = InetAddress.getLocalHost().getAddress();
+			ipBytes[3] = (byte) 255;
+			broadcastIP = InetAddress.getByAddress(ipBytes).toString().substring(1);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//return "10.49.251.130";
+		return broadcastIP;
 	}
 
 	public static ServerSocket getServerSocket() {
