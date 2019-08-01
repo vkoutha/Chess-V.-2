@@ -1,36 +1,23 @@
 package game;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.function.Function;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import game.GameData.GameStates;
 import game.GameData.Players;
-import game.Renderer.BoardPanel;
 import game.Renderer.Panels;
-import game.Renderer.Player1Panel;
-import game.Renderer.Player2Panel;
-import network.Client;
 import network.OnlineGame;
-import network.Server;
 import pieces.Bishop;
 import pieces.King;
 import pieces.Knight;
@@ -182,6 +169,7 @@ public class Game implements ActionListener, MouseListener {
 					if (!inPromotionMenu) {
 						onlineGame.sendMove(prevPieceLocation, new int[] { sRow, sCol });
 					}
+					new Thread(this::waitForIncomingData);
 				}
 				if (!inPromotionMenu) {
 					endPlayerTurn();
@@ -346,9 +334,7 @@ public class Game implements ActionListener, MouseListener {
 		if (gameState == GameStates.IN_GAME) {
 			renderer.repaint();
 		}
-		if (isOnlineGame && playerTurn != onlineGame.getOwnPlayer()) {
-			checkForIncomingData();
-		}
+
 		if (playerTurn == Players.PLAYER_1) {
 			GameData.PLAYER_1_TIMER_SECONDS--;
 		} else {
@@ -356,7 +342,7 @@ public class Game implements ActionListener, MouseListener {
 		}
 	}
 
-	private void checkForIncomingData() {
+	private void waitForIncomingData() {
 		switch (onlineGame.getIncomingDataHeader()) {
 		case PIECE_MOVE:
 			processIncomingPieceMove();
@@ -428,28 +414,19 @@ public class Game implements ActionListener, MouseListener {
 	}
 
 	private static void addShutdownHook() {
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				if (Game.game.isOnlineGame) {
-					Game.game.onlineGame.close();
-				}
-			}
-		}));
+		if (Game.game.isOnlineGame) {
+			Game.game.onlineGame.close();
+		}
 	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
+		SwingUtilities.invokeLater(() -> {
 				// TODO Auto-generated method stub
 				game = new Game();
 				game.setGameState(GameStates.MENU);
-			}
 		});
-		addShutdownHook();
+		Runtime.getRuntime().addShutdownHook(new Thread(Game::addShutdownHook));
 	}
 
 }

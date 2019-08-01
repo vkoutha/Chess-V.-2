@@ -29,7 +29,7 @@ public class Client {
 		Game.game.setAsOnlineGame(true);
 		Game.game.startTimer();
 	}
-
+	
 	private static void checkForDataAndConnectToServer() {
 		DatagramSocket datagramSocket = null;
 		try {

@@ -121,12 +121,18 @@ public class PromotionMenu extends JFrame {
 		ArrayList<Piece> playerPieces = (pawn.getPlayer() == Players.PLAYER_1 ? Game.game.getPlayer1Pieces() : Game.game.getPlayer2Pieces());
 		playerPieces.remove(pawn);
 		playerPieces.add(pieceToAdd);
-		pieceToAdd.setSprite();
-		if(Game.game.isOnlineGame()) {
-			Game.game.getOnlineGame().sendPawnPromotion(pawn, pieceToAdd);
-			Game.game.onlineGame.sendMove(prevLocation, pawn.getBoardLocation());
-			Game.game.endPlayerTurn();
-		}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				if(Game.game.isOnlineGame()) {
+					System.out.println("PAWN PROMOTION SENT!!");
+					Game.game.getOnlineGame().sendPawnPromotion(pawn, pieceToAdd);
+					Game.game.onlineGame.sendMove(prevLocation, pawn.getBoardLocation());
+					Game.game.endPlayerTurn();
+				}
+			}
+		}).start();		
 		Game.game.getFrame().getContentPane().addMouseListener(Game.game);
 		Game.game.setInPromotionMenu(false);
 		dispose();

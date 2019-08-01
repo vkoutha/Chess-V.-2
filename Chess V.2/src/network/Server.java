@@ -2,12 +2,12 @@ package network;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.util.Enumeration;
 
 import javax.swing.JOptionPane;
 
@@ -20,10 +20,18 @@ public class Server {
 	private static String gamePassword;
 	private static ServerSocket serverSocket;
 	private static Socket clientSocket;
+	private static String directConnectIP;
 
 	public static void startOnlineGame() {
-		gamePassword = JOptionPane.showInputDialog(null,
-				"Enter game password for a private game, no password for a public game");
+		int option = JOptionPane.showConfirmDialog(null, "Direct connect?", "Direct connect?", 0);
+		if(option == 0) {
+			directConnectIP = JOptionPane.showInputDialog(null, "Enter device IP");
+			gamePassword = "";
+		}else {
+			gamePassword = JOptionPane.showInputDialog(null,
+					"Enter game password for a private game, no password for a public game");
+			directConnectIP = "";
+		}
 		broadcastGamePassword();
 		startServer();
 		System.out.println("SERVER STARTED");
@@ -35,15 +43,18 @@ public class Server {
 
 	private static void broadcastGamePassword() {
 		DatagramSocket socket = null;
+		String ipToSendTo = directConnectIP.equals("") ? getBroadcastAddress() : directConnectIP;
 		try {
 			socket = new DatagramSocket(GameData.NETWORK_PORT);
-			DatagramPacket sendingData = new DatagramPacket(gamePassword.getBytes(), gamePassword.getBytes().length,
-					InetAddress.getByName(getBroadcastIP()), GameData.NETWORK_PORT);
-			socket.send(sendingData);
-			System.out.println("Data sent to " + getBroadcastIP());
+			for (int i = 0; i < 10; i++) {
+				DatagramPacket sendingData = new DatagramPacket(gamePassword.getBytes(), gamePassword.getBytes().length,
+						InetAddress.getByName(ipToSendTo), GameData.NETWORK_PORT);
+				socket.send(sendingData);
+				System.out.println("Data sent to " + ipToSendTo);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			socket.close();
 		}
 	}
@@ -59,18 +70,25 @@ public class Server {
 		}
 	}
 
-	private static String getBroadcastIP() {
-		String broadcastIP = "";
+	private static String getBroadcastAddress() {
+		String broadcastAddress = "";
 		try {
-			byte[] ipBytes = InetAddress.getLocalHost().getAddress();
-			ipBytes[3] = (byte) 255;
-			broadcastIP = InetAddress.getByAddress(ipBytes).toString().substring(1);
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+			while (interfaces.hasMoreElements()) {
+				NetworkInterface networkInterface = interfaces.nextElement();
+				if (networkInterface.isLoopback())
+					continue;
+				for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
+					InetAddress broadcast = interfaceAddress.getBroadcast();
+					if (broadcast == null)
+						continue;
+					return interfaceAddress.getBroadcast().toString().substring(1);
+				}
+			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//return "10.49.251.130";
-		return broadcastIP;
+		return broadcastAddress;
 	}
 
 	public static ServerSocket getServerSocket() {
