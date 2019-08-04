@@ -25,11 +25,10 @@ public class Client {
 			gamePassword = "";
 		}
 		checkForDataAndConnectToServer();
-		Game.game.setGameState(GameStates.IN_GAME);
-		Game.game.setAsOnlineGame(true);
-		Game.game.startTimer();
+		Game.game.setAsOnlineGame(true, false);
+		new Thread(Game.game::waitForIncomingData).start();
 	}
-	
+
 	private static void checkForDataAndConnectToServer() {
 		DatagramSocket datagramSocket = null;
 		try {

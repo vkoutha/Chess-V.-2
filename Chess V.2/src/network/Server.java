@@ -34,11 +34,7 @@ public class Server {
 		}
 		broadcastGamePassword();
 		startServer();
-		System.out.println("SERVER STARTED");
-		Game.game.setGameState(GameStates.IN_GAME);
-		System.out.println("GAME STATE SWITCHED");
-		Game.game.setAsOnlineGame(true);
-		Game.game.startTimer();
+		Game.game.setAsOnlineGame(true, true);
 	}
 
 	private static void broadcastGamePassword() {

@@ -39,9 +39,11 @@ public class GameData {
 
 	public static int PLAYER_1_TIMER_SECONDS = 10 * 60;
 	public static int PLAYER_2_TIMER_SECONDS = 10 * 60;
+	
+	public static final String FILE_DIRECTORY = "";
 
 	public static final int CONNECTION_TIMEOUT_MS = 5000;
-	public static final int NETWORK_PORT = 1118;
+	public static final int NETWORK_PORT = 1119;
 
 	public static final Color BROWN_TILE_COLOR = new Color(153, 76, 0);
 	public static final Color WHITE_TILE_COLOR = new Color(255, 178, 102);

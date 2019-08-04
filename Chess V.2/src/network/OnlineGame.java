@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 
 import game.GameData.DataTransferHeaders;
 import game.GameData.Players;
@@ -13,6 +14,7 @@ import pieces.Piece;
 
 public class OnlineGame {
 
+	private Socket socket;
 	private ObjectOutputStream outputStream;
 	private ObjectInputStream inputStream;
 	private Players ownPlayer;
@@ -22,12 +24,14 @@ public class OnlineGame {
 			OutputStream outputStream;
 			InputStream inputStream;
 			if (isServer) {
-				outputStream = Server.getSocket().getOutputStream();
-				inputStream = Server.getSocket().getInputStream();
+				socket = Server.getSocket();
+				outputStream = socket.getOutputStream();
+				inputStream = socket.getInputStream();
 				ownPlayer = Players.PLAYER_1;
 			} else {
-				outputStream = Client.getSocket().getOutputStream();
-				inputStream = Client.getSocket().getInputStream();
+				socket = Client.getSocket();
+				outputStream = socket.getOutputStream();
+				inputStream = socket.getInputStream();
 				ownPlayer = Players.PLAYER_2;
 			}
 			this.outputStream = new ObjectOutputStream(outputStream);
@@ -45,6 +49,7 @@ public class OnlineGame {
 			outputStream.writeInt(destination[0]);
 			outputStream.writeInt(destination[1]);
 			outputStream.flush();
+			System.out.println("Move sent!!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

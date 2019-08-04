@@ -105,8 +105,8 @@ public class FrameManager {
 					// TODO Auto-generated method stub
 					Game.game.setGameState(GameStates.SEARCHING);
 					Server.startOnlineGame();
-					Game.game.onlineGame = new OnlineGame(true);
 					Game.game.setGameState(GameStates.IN_GAME);
+					Game.game.startTimer();
 				}
 			});
 			startLocalGameBtn.setFocusable(false);
@@ -124,7 +124,8 @@ public class FrameManager {
 					// TODO Auto-generated method stub
 					Game.game.setGameState(GameStates.SEARCHING);
 					Client.joinOnlineGame();
-					Game.game.onlineGame = new OnlineGame(false);
+					Game.game.setGameState(GameStates.IN_GAME);
+					Game.game.startTimer();
 				}
 			});
 			joinLocalGameBtn.setAlignmentX(Component.CENTER_ALIGNMENT);

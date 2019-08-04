@@ -30,20 +30,21 @@ public class Game implements ActionListener, MouseListener {
 
 	public static Game game;
 	public JFrame frame, promotionMenu;
-	protected JLabel player1TimerLabel, player2TimerLabel;
-	protected Renderer renderer;
-	protected Renderer.Player1Panel player1Panel;
-	protected Renderer.Player2Panel player2Panel;
-	protected Renderer.BoardPanel boardPanel;
-	protected Timer timer;
-	protected Tile[][] tiles;
-	protected Tile selectedTile;
-	protected ArrayList<Piece> player1Pieces, deadPlayer1Pieces;
-	protected ArrayList<Piece> player2Pieces, deadPlayer2Pieces;
-	protected OnlineGame onlineGame;
-	protected GameStates gameState;
-	protected Players playerTurn;
-	protected boolean inPromotionMenu, isOnlineGame;
+	public JLabel player1TimerLabel, player2TimerLabel;
+	public Renderer renderer;
+	public Renderer.Player1Panel player1Panel;
+	public Renderer.Player2Panel player2Panel;
+	public Renderer.BoardPanel boardPanel;
+	public Timer timer;
+	public Tile[][] tiles;
+	public Tile selectedTile;
+	public ArrayList<Piece> player1Pieces, deadPlayer1Pieces;
+	public ArrayList<Piece> player2Pieces, deadPlayer2Pieces;
+	public OnlineGame onlineGame;
+	public GameStates gameState;
+	public Players playerTurn;
+	public String gameName;
+	public boolean inPromotionMenu, isOnlineGame;
 
 	private Game() {
 	}
@@ -169,7 +170,8 @@ public class Game implements ActionListener, MouseListener {
 					if (!inPromotionMenu) {
 						onlineGame.sendMove(prevPieceLocation, new int[] { sRow, sCol });
 					}
-					new Thread(this::waitForIncomingData);
+					new Thread(this::waitForIncomingData).start();
+					;
 				}
 				if (!inPromotionMenu) {
 					endPlayerTurn();
@@ -275,14 +277,136 @@ public class Game implements ActionListener, MouseListener {
 		this.inPromotionMenu = inPromotionMenu;
 	}
 
-	public void setAsOnlineGame(boolean isOnlineGame) {
+	public void setAsOnlineGame(boolean isOnlineGame, boolean isServer) {
 		this.isOnlineGame = isOnlineGame;
+		if (true) {
+			onlineGame = new OnlineGame(isServer ? true : false);
+		}
 	}
 
 	public void startTimer() {
 		if (!timer.isRunning()) {
 			timer.start();
 		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if (gameState == GameStates.IN_GAME) {
+			renderer.repaint();
+		}
+
+		if (playerTurn == Players.PLAYER_1) {
+			GameData.PLAYER_1_TIMER_SECONDS--;
+		} else {
+			GameData.PLAYER_2_TIMER_SECONDS--;
+		}
+	}
+
+	public void waitForIncomingData() {
+		System.out.println("WAITING FOR INCOMING DATA!!");
+		switch (onlineGame.getIncomingDataHeader()) {
+		case PIECE_MOVE:
+			processIncomingPieceMove();
+			Tile.resetCheckedTiles();
+			endPlayerTurn();
+			break;
+		case PAWN_PROMOTION:
+			processIncomingPawnPromotion();
+			endPlayerTurn();
+			break;
+		}
+	}
+
+	private void processIncomingPieceMove() {
+		int[][] move = onlineGame.getOpponentMove();
+		tiles[move[0][0]][move[0][1]].getPiece().move(move[1][0], move[1][1]);
+	}
+
+	public void processIncomingPawnPromotion() {
+		Piece[] pawnPromotion = onlineGame.getPawnPromotion();
+		Pawn pawnToBePromoted = (Pawn) pawnPromotion[0];
+		Piece pieceToBePromotedTo = pawnPromotion[1];
+		onlineGame.ignoreDataHeader();
+		processIncomingPieceMove();
+		tiles[pawnToBePromoted.getRow()][pawnToBePromoted.getColumn()].getPiece().kill();
+		pieceToBePromotedTo.setSprite();
+		if (pieceToBePromotedTo.getPlayer() == Players.PLAYER_1) {
+			player1Pieces.add(pieceToBePromotedTo);
+		} else {
+			player2Pieces.add(pieceToBePromotedTo);
+		}
+	}
+
+	public void saveGame() {
+		JOptionPane.showInputDialog(null, "Enter game name!");
+		FileManager.createNewGameFile(getInstance());
+	}
+	
+	public void loadGame(String gameName) {
+		GameInstance gameInstance = FileManager.loadGame(gameName);
+		initGame();
+		player1Pieces.clear();
+		deadPlayer1Pieces.clear();
+		player2Pieces.clear();
+		deadPlayer2Pieces.clear();
+		for(int i = 0; i < gameInstance.getPlayerPieces().size(); i++) {
+			if(gameInstance.getPlayerPieces().get(i).getPlayer() == Players.PLAYER_1) {
+				player1Pieces.add(gameInstance.getPlayerPieces().get(i));
+			}else {
+				player2Pieces.add(gameInstance.getPlayerPieces().get(i));
+			}
+		}
+		for(int i = 0; i < gameInstance.getDeadPieces().size(); i++) {
+			if(gameInstance.getDeadPieces().get(i).getPlayer() == Players.PLAYER_1) {
+				deadPlayer1Pieces.add(gameInstance.getDeadPieces().get(i));
+			}else {
+				deadPlayer2Pieces.add(gameInstance.getDeadPieces().get(i));
+			}
+		}
+		setGameState(GameStates.IN_GAME);
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		if (!timer.isRunning()) {
+			timer.start();
+		}
+		Tile.resetCheckedTiles();
+		if (e.getX() > GameData.PLAYER_PANEL_WIDTH && e.getX() < GameData.BOARD_WIDTH + GameData.PLAYER_PANEL_WIDTH) {
+			int sRow = (int) Math.floor((e.getY()) / GameData.TILE_HEIGHT);
+			int sCol = (int) Math.floor((e.getX() - GameData.PLAYER_PANEL_WIDTH) / GameData.TILE_WIDTH);
+			if (sRow < 8 && sCol < 8) {
+				processTileSelection(sRow, sCol);
+			}
+		}
+		renderer.repaint();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public boolean inPromotionMenu() {
@@ -327,90 +451,15 @@ public class Game implements ActionListener, MouseListener {
 	public ArrayList<Piece> getDeadPlayer2Pieces() {
 		return deadPlayer2Pieces;
 	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if (gameState == GameStates.IN_GAME) {
-			renderer.repaint();
-		}
-
-		if (playerTurn == Players.PLAYER_1) {
-			GameData.PLAYER_1_TIMER_SECONDS--;
-		} else {
-			GameData.PLAYER_2_TIMER_SECONDS--;
-		}
-	}
-
-	private void waitForIncomingData() {
-		switch (onlineGame.getIncomingDataHeader()) {
-		case PIECE_MOVE:
-			processIncomingPieceMove();
-			Tile.resetCheckedTiles();
-			endPlayerTurn();
-			break;
-		case PAWN_PROMOTION:
-			Piece[] pawnPromotion = onlineGame.getPawnPromotion();
-			Pawn pawnToBePromoted = (Pawn) pawnPromotion[0];
-			Piece pieceToBePromotedTo = pawnPromotion[1];
-			onlineGame.ignoreDataHeader();
-			processIncomingPieceMove();
-			tiles[pawnToBePromoted.getRow()][pawnToBePromoted.getColumn()].getPiece().kill();
-			pieceToBePromotedTo.setSprite();
-			if (pieceToBePromotedTo.getPlayer() == Players.PLAYER_1) {
-				player1Pieces.add(pieceToBePromotedTo);
-			} else {
-				player2Pieces.add(pieceToBePromotedTo);
-			}
-			endPlayerTurn();
-			break;
-		}
-	}
-
-	private void processIncomingPieceMove() {
-		int[][] move = onlineGame.getOpponentMove();
-		tiles[move[0][0]][move[0][1]].getPiece().move(move[1][0], move[1][1]);
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		if (!timer.isRunning()) {
-			timer.start();
-		}
-		Tile.resetCheckedTiles();
-		if (e.getX() > GameData.PLAYER_PANEL_WIDTH && e.getX() < GameData.BOARD_WIDTH + GameData.PLAYER_PANEL_WIDTH) {
-			int sRow = (int) Math.floor((e.getY()) / GameData.TILE_HEIGHT);
-			int sCol = (int) Math.floor((e.getX() - GameData.PLAYER_PANEL_WIDTH) / GameData.TILE_WIDTH);
-			if (sRow < 8 && sCol < 8) {
-				processTileSelection(sRow, sCol);
-			}
-		}
-		renderer.repaint();
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+	
+	public GameInstance getInstance() {
+		ArrayList<Piece> playerPieces = new ArrayList<Piece>();
+		ArrayList<Piece> deadPieces = new ArrayList<Piece>();
+		playerPieces.addAll(player1Pieces);
+		playerPieces.addAll(player2Pieces);
+		deadPieces.addAll(deadPlayer1Pieces);
+		deadPieces.addAll(deadPlayer2Pieces);
+		return new GameInstance(playerPieces, deadPieces, gameName);
 	}
 
 	private static void addShutdownHook() {
@@ -422,11 +471,35 @@ public class Game implements ActionListener, MouseListener {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		SwingUtilities.invokeLater(() -> {
-				// TODO Auto-generated method stub
-				game = new Game();
-				game.setGameState(GameStates.MENU);
+			// TODO Auto-generated method stub
+			game = new Game();
+			game.setGameState(GameStates.MENU);
 		});
 		Runtime.getRuntime().addShutdownHook(new Thread(Game::addShutdownHook));
+	}
+
+	public static class GameInstance {
+		private ArrayList<Piece> playerPieces;
+		private ArrayList<Piece> deadPieces;
+		private String gameName;
+
+		public GameInstance(ArrayList<Piece> playerPieces, ArrayList<Piece> deadPieces, String gameName) {
+			this.playerPieces = playerPieces;
+			this.deadPieces = deadPieces;
+			this.gameName = gameName;
+		}
+
+		public ArrayList<Piece> getPlayerPieces() {
+			return playerPieces;
+		}
+
+		public ArrayList<Piece> getDeadPieces() {
+			return deadPieces;
+		}
+		
+		public String getGameName() {
+			return gameName;
+		}
 	}
 
 }
