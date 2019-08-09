@@ -65,7 +65,7 @@ public class FileManager {
 		}
 		return null;
 	}
-
+	
 	public static File[] getAllFiles() {
 		File directory = new File(GameData.FILE_DIRECTORY);
 		return directory.listFiles();

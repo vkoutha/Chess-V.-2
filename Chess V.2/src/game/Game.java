@@ -63,6 +63,10 @@ public class Game implements ActionListener, MouseListener {
 		case SEARCHING:
 			FrameManager.SearchingFrame.initSearchingFrame();
 			break;
+		case LOAD_GAME:
+			break;
+		default:
+			break;
 		}
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
@@ -256,8 +260,8 @@ public class Game implements ActionListener, MouseListener {
 	private void playPieceSoundEffect() {
 		try {
 			GameData.resetSoundStreams();
-			GameData.soundPlayer.open(GameData.pieceSoundEffect);
-			GameData.soundPlayer.start();
+			GameData.SOUND_PLAYER.open(GameData.PIECE_SOUND_EFFECT);
+			GameData.SOUND_PLAYER.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

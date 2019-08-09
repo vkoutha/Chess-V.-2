@@ -24,7 +24,8 @@ public class Pawn extends Piece {
 				availableMoves.add(new int[] { row - 1, column });
 			}
 			if (!inInvalidLocation(row - 2, column) && moveCount == 0
-					&& Game.game.getTiles()[row - 2][column].getPiece() == null) {
+					&& Game.game.getTiles()[row - 2][column].getPiece() == null
+					&& Game.game.getTiles()[row - 1][column].getPiece() == null) {
 				availableMoves.add(new int[] { row - 2, column });
 			}
 			if (!inInvalidLocation(row - 1, column - 1) && Game.game.getTiles()[row - 1][column - 1].getPiece() != null
@@ -40,7 +41,8 @@ public class Pawn extends Piece {
 				availableMoves.add(new int[] { row + 1, column });
 			}
 			if (!inInvalidLocation(row + 2, column) && moveCount == 0
-					&& Game.game.getTiles()[row + 2][column].getPiece() == null) {
+					&& Game.game.getTiles()[row + 2][column].getPiece() == null
+					&& Game.game.getTiles()[row + 1][column].getPiece() == null) {
 				availableMoves.add(new int[] { row + 2, column });
 			}
 			if (!inInvalidLocation(row + 1, column - 1) && Game.game.getTiles()[row + 1][column - 1].getPiece() != null
@@ -56,14 +58,14 @@ public class Pawn extends Piece {
 	}
 
 	public void move(int row, int column) {
-		int[] prevLocation = {this.row, this.column};
+		int[] prevLocation = { this.row, this.column };
 		super.move(row, column);
 		moveCount++;
 		if (row == (player == Players.PLAYER_1 ? 0 : 7)) {
 			if (!Game.game.isOnlineGame()) {
 				Game.game.initPromotionMenu(this);
 			} else {
-				if(player == Game.game.getOnlineGame().getOwnPlayer()) {
+				if (player == Game.game.getOnlineGame().getOwnPlayer()) {
 					Game.game.setInPromotionMenu(true);
 					System.out.println("GOING TO PROMOTION MENU!!!");
 					Game.game.initPromotionMenu(this, prevLocation);

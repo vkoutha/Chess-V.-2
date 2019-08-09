@@ -20,7 +20,6 @@ import game.Renderer.BoardPanel;
 import game.Renderer.Player1Panel;
 import game.Renderer.Player2Panel;
 import network.Client;
-import network.OnlineGame;
 import network.Server;
 
 public class FrameManager {
@@ -34,22 +33,25 @@ public class FrameManager {
 			JPanel container = new JPanel();
 			container.setLayout(new BoxLayout(container, BoxLayout.PAGE_AXIS));
 			JLabel logoLbl = getLogoLabel();
-			JButton twoPlayerBtn = getTwoPlayerButton();
 			JButton singlePlayerBtn = getSinglePlayerButton();
+			JButton twoPlayerBtn = getTwoPlayerButton();
 			JButton startLocalGameBtn = getStartLocalGameButton();
 			JButton joinLocalGameBtn = getJoinLocalGameButton();
+			JButton loadGameBtn = getLoadGameButton();
 			container.setBackground(GameData.PLAYER_PANEL_BACKGROUND_COLOR);
 			container.setPreferredSize(new Dimension(GameData.BOARD_WIDTH, GameData.BOARD_HEIGHT));
 			container.add(Box.createVerticalStrut(80));
 			container.add(logoLbl);
 			container.add(Box.createVerticalStrut(50));
-			container.add(twoPlayerBtn);
-			container.add(Box.createVerticalStrut(25));
 			container.add(singlePlayerBtn);
+			container.add(Box.createVerticalStrut(25));
+			container.add(twoPlayerBtn);
 			container.add(Box.createVerticalStrut(25));
 			container.add(startLocalGameBtn);
 			container.add(Box.createVerticalStrut(25));
 			container.add(joinLocalGameBtn);
+			container.add(Box.createVerticalStrut(25));
+			container.add(loadGameBtn);
 			Game.game.frame.add(container);
 			Game.game.frame.pack();
 			Game.game.frame.setVisible(true);
@@ -63,26 +65,10 @@ public class FrameManager {
 			logoLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 			return logoLbl;
 		}
-
-		private static JButton getTwoPlayerButton() {
-			JButton twoPlayerBtn = new JButton(GameData.twoPlayerIcon[0]);
-			twoPlayerBtn.setRolloverIcon(GameData.twoPlayerIcon[1]);
-			twoPlayerBtn.setFocusable(false);
-			twoPlayerBtn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
-					Game.game.setGameState(GameStates.IN_GAME);
-				}
-			});
-			twoPlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-			GameData.removeBackground(twoPlayerBtn);
-			return twoPlayerBtn;
-		}
-
+		
 		private static JButton getSinglePlayerButton() {
-			JButton singlePlayerBtn = new JButton(GameData.singlePlayerIcon[0]);
-			singlePlayerBtn.setRolloverIcon(GameData.singlePlayerIcon[1]);
+			JButton singlePlayerBtn = new JButton(GameData.SINGLE_PLAYER_ICON[0]);
+			singlePlayerBtn.setRolloverIcon(GameData.SINGLE_PLAYER_ICON[1]);
 			singlePlayerBtn.setFocusable(false);
 			singlePlayerBtn.addActionListener(new ActionListener() {
 				@Override
@@ -96,9 +82,25 @@ public class FrameManager {
 			return singlePlayerBtn;
 		}
 
+		private static JButton getTwoPlayerButton() {
+			JButton twoPlayerBtn = new JButton(GameData.TWO_PLAYER_ICON[0]);
+			twoPlayerBtn.setRolloverIcon(GameData.TWO_PLAYER_ICON[1]);
+			twoPlayerBtn.setFocusable(false);
+			twoPlayerBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					Game.game.setGameState(GameStates.IN_GAME);
+				}
+			});
+			twoPlayerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+			GameData.removeBackground(twoPlayerBtn);
+			return twoPlayerBtn;
+		}
+
 		private static JButton getStartLocalGameButton() {
-			JButton startLocalGameBtn = new JButton(GameData.startLocalGameIcon[0]);
-			startLocalGameBtn.setRolloverIcon(GameData.startLocalGameIcon[1]);
+			JButton startLocalGameBtn = new JButton(GameData.START_LOCAL_GAME_ICON[0]);
+			startLocalGameBtn.setRolloverIcon(GameData.START_LOCAL_GAME_ICON[1]);
 			startLocalGameBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -115,9 +117,9 @@ public class FrameManager {
 			return startLocalGameBtn;
 		}
 
-		static private JButton getJoinLocalGameButton() {
-			JButton joinLocalGameBtn = new JButton(GameData.joinLocalGameIcon[0]);
-			joinLocalGameBtn.setRolloverIcon(GameData.joinLocalGameIcon[1]);
+		private static JButton getJoinLocalGameButton() {
+			JButton joinLocalGameBtn = new JButton(GameData.JOIN_LOCAL_GAME_ICON[0]);
+			joinLocalGameBtn.setRolloverIcon(GameData.JOIN_LOCAL_GAME_ICON[1]);
 			joinLocalGameBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -133,6 +135,22 @@ public class FrameManager {
 			GameData.removeBackground(joinLocalGameBtn);
 			return joinLocalGameBtn;
 		}
+	}
+	
+	private static JButton getLoadGameButton() {
+		JButton loadGameBtn = new JButton(GameData.LOAD_GAME_ICON[0]);
+		loadGameBtn.setRolloverIcon(GameData.LOAD_GAME_ICON[1]);
+		loadGameBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		loadGameBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+		loadGameBtn.setFocusable(false);
+		GameData.removeBackground(loadGameBtn);
+		return loadGameBtn;
 	}
 
 	public static class GameFrame {

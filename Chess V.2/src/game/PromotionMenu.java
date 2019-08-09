@@ -67,16 +67,16 @@ public class PromotionMenu extends JFrame {
 	}
 	
 	private void initButtons() {
-		knightButton = new JButton(GameData.knightIcon[iconIndexToUse]);
+		knightButton = new JButton(GameData.KNIGHT_ICON[iconIndexToUse]);
 		knightButton.setAlignmentY(Component.CENTER_ALIGNMENT);
 		GameData.removeBackground(knightButton);
-		bishopButton = new JButton(GameData.bishopIcon[iconIndexToUse]);
+		bishopButton = new JButton(GameData.BISHOP_ICON[iconIndexToUse]);
 		bishopButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		GameData.removeBackground(bishopButton);
-		rookButton = new JButton(GameData.rookIcon[iconIndexToUse]);
+		rookButton = new JButton(GameData.ROOK_ICON[iconIndexToUse]);
 		rookButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		GameData.removeBackground(rookButton);
-		queenButton = new JButton(GameData.queenIcon[iconIndexToUse]);
+		queenButton = new JButton(GameData.QUEEN_ICON[iconIndexToUse]);
 		queenButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		GameData.removeBackground(queenButton);
 	}

@@ -124,17 +124,17 @@ public abstract class Piece implements Serializable{
 
 	public void setSprite() {
 		if (this instanceof Pawn) {
-			spriteToUse = player == Players.PLAYER_1 ? GameData.pawnSprite[0] : GameData.pawnSprite[1];
+			spriteToUse = player == Players.PLAYER_1 ? GameData.PAWN_SPRITE[0] : GameData.PAWN_SPRITE[1];
 		} else if (this instanceof Knight) {
-			spriteToUse = player == Players.PLAYER_1 ? GameData.knightSprite[0] : GameData.knightSprite[1];
+			spriteToUse = player == Players.PLAYER_1 ? GameData.KNIGHT_SPRITE[0] : GameData.KNIGHT_SPRITE[1];
 		} else if (this instanceof Bishop) {
-			spriteToUse = player == Players.PLAYER_1 ? GameData.bishopSprite[0] : GameData.bishopSprite[1];
+			spriteToUse = player == Players.PLAYER_1 ? GameData.BISHOP_SPRITE[0] : GameData.BISHOP_SPRITE[1];
 		} else if (this instanceof Rook) {
-			spriteToUse = player == Players.PLAYER_1 ? GameData.rookSprite[0] : GameData.rookSprite[1];
+			spriteToUse = player == Players.PLAYER_1 ? GameData.ROOK_SPRITE[0] : GameData.ROOK_SPRITE[1];
 		} else if (this instanceof Queen) {
-			spriteToUse = player == Players.PLAYER_1 ? GameData.queenSprite[0] : GameData.queenSprite[1];
+			spriteToUse = player == Players.PLAYER_1 ? GameData.QUEEN_SPRITE[0] : GameData.QUEEN_SPRITE[1];
 		} else if (this instanceof King) {
-			spriteToUse = player == Players.PLAYER_1 ? GameData.kingSprite[0] : GameData.kingSprite[1];
+			spriteToUse = player == Players.PLAYER_1 ? GameData.KING_SPRITE[0] : GameData.KING_SPRITE[1];
 		}
 	}
 
